@@ -1,7 +1,7 @@
 #Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
-import hashlib, uuid
+import hashlib
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -35,8 +35,8 @@ def register():
 def loginAuth():
     #grabs information from the forms
     username = request.form['Username']
-    password = request.form['Password']
-
+    password = getHashed(request.form['Password'])
+    
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
@@ -139,8 +139,8 @@ def logout():
     session.pop('username')
     return redirect('/')
 
-def getHased(password): 
-    salt = uuid.uuid4().hex
+def getHashed(password): 
+    salt = "FinstagramIsWorking"
     pHash = hashlib.sha512(password + salt).hexdigest()
 
 app.secret_key = 'some key that you will never guess'
