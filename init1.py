@@ -34,8 +34,8 @@ def register():
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
     #grabs information from the forms
-    username = request.form['Username']
-    password = getHashed(request.form['Password'])
+    username = request.form['username']
+    password = getHashed(request.form['password'])
     
     #cursor used to send queries
     cursor = conn.cursor()
@@ -61,11 +61,11 @@ def loginAuth():
 @app.route('/registerAuth', methods=['GET', 'POST'])
 def registerAuth():
     #grabs information from the forms
-    username = request.form['Username']
-    password = request.form['Password']
-    fName = request.form['First Name']
-    lName = request.form['Last Name']
-    email = request.form['E-Mail']
+    username = request.form['username']
+    password = request.form['password']
+    fName = request.form['firstName']
+    lName = request.form['lastName']
+    email = request.form['email']
     pHash = getHashed(password)
 
     #cursor used to send queries
