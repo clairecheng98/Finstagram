@@ -35,13 +35,13 @@ def register():
 def loginAuth():
     #grabs information from the forms
     username = request.form['username']
-    password = request.form['password']
-    pHash = getHashed(password)
+    password = getHashed(request.form['password'])
+    
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
     query = 'SELECT * FROM Person WHERE username = %s and password = %s'
-    cursor.execute(query, (username, pHash))
+    cursor.execute(query, (username, password))
     #stores the results in a variable
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
@@ -63,10 +63,9 @@ def registerAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
-    firstName = request.form['firstName']
-    lastName = request.form['lastName']
+    fName = request.form['firstName']
+    lName = request.form['lastName']
     email = request.form['email']
-    pHash = getHashed(password)
 
     #cursor used to send queries
     cursor = conn.cursor()
@@ -82,8 +81,9 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
-        ins = 'INSERT INTO Person VALUES(%s, %s)'
-        cursor.execute(ins, (username, pHash))
+        pHash = getHashed(password)
+        ins = 'INSERT INTO Person VALUES(%s, %s, %s, %s, %s)'
+        cursor.execute(ins, (username, pHash, fName, lName, email))
         conn.commit()
         cursor.close()
         return render_template('index.html')
@@ -140,9 +140,10 @@ def logout():
     return redirect('/')
 
 def getHashed(password): 
-    salt = "FinstagramIsWorking"
+    salt = "Finstagram"
     saltedPswd = password + salt
-    pHash = hashlib.sha512(saltedPswd.encode()).hexdigest()
+    pHash = hashlib.sha256(saltedPswd.encode()).hexdigest()
+    return pHash
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
