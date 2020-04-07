@@ -1,6 +1,7 @@
 #Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
+import hashlib, uuid
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -10,7 +11,7 @@ conn = pymysql.connect(host='localhost',
                        port = 8889,
                        user='root',
                        password='root',
-                       db='FlaskDemo',
+                       db='Finstagram',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
@@ -33,8 +34,8 @@ def register():
 @app.route('/loginAuth', methods=['GET', 'POST'])
 def loginAuth():
     #grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form['Username']
+    password = request.form['Password']
 
     #cursor used to send queries
     cursor = conn.cursor()
@@ -60,8 +61,12 @@ def loginAuth():
 @app.route('/registerAuth', methods=['GET', 'POST'])
 def registerAuth():
     #grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form['Username']
+    password = request.form['Password']
+    fName = request.form['First Name']
+    lName = request.form['Last Name']
+    email = request.form['E-Mail']
+    pHash = getHashed(password)
 
     #cursor used to send queries
     cursor = conn.cursor()
@@ -133,7 +138,11 @@ def show_posts():
 def logout():
     session.pop('username')
     return redirect('/')
-        
+
+def getHased(password): 
+    salt = uuid.uuid4().hex
+    pHash = hashlib.sha512(password + salt).hexdigest()
+
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
 #debug = True -> you don't have to restart flask
