@@ -82,7 +82,7 @@ def registerAuth():
         error = "This user already exists"
         return render_template('register.html', error = error)
     else:
-        ins = 'INSERT INTO user VALUES(%s, %s)'
+        ins = 'INSERT INTO Person VALUES(%s, %s)'
         cursor.execute(ins, (username, pHash))
         conn.commit()
         cursor.close()
