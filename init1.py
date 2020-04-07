@@ -35,13 +35,13 @@ def register():
 def loginAuth():
     #grabs information from the forms
     username = request.form['username']
-    password = getHashed(request.form['password'])
-    
+    password = request.form['password']
+    pHash = getHashed(password)
     #cursor used to send queries
     cursor = conn.cursor()
     #executes query
     query = 'SELECT * FROM user WHERE username = %s and password = %s'
-    cursor.execute(query, (username, password))
+    cursor.execute(query, (username, pHash))
     #stores the results in a variable
     data = cursor.fetchone()
     #use fetchall() if you are expecting more than 1 data row
@@ -63,8 +63,8 @@ def registerAuth():
     #grabs information from the forms
     username = request.form['username']
     password = request.form['password']
-    fName = request.form['firstName']
-    lName = request.form['lastName']
+    firstName = request.form['firstName']
+    lastName = request.form['lastName']
     email = request.form['email']
     pHash = getHashed(password)
 
@@ -83,7 +83,7 @@ def registerAuth():
         return render_template('register.html', error = error)
     else:
         ins = 'INSERT INTO user VALUES(%s, %s)'
-        cursor.execute(ins, (username, password))
+        cursor.execute(ins, (username, pHash))
         conn.commit()
         cursor.close()
         return render_template('index.html')
