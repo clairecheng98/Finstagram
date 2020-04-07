@@ -141,7 +141,8 @@ def logout():
 
 def getHashed(password): 
     salt = "FinstagramIsWorking"
-    pHash = hashlib.sha512(password + salt).hexdigest()
+    saltedPswd = password + salt
+    pHash = hashlib.sha512(saltedPswd.encode()).hexdigest()
 
 app.secret_key = 'some key that you will never guess'
 #Run the app on localhost port 5000
