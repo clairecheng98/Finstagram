@@ -10,20 +10,16 @@
 	}
 </style>
 
-Here are your feeds:
+News Feed: 
 
 <table>
     <th>Time</th>
     <th>Post</th>
-    <th></th>
 
 {% for line in posts %}
     <tr>
         <td>{{line.postingDate}}</td>
-        <td>{{line.pID}}</td>
-        <td><form action="{{url_for('photoDetail', pID=line.pID) }}" method="POST">
-            <input type="submit" value = View />
-        </form></td>
+        <td><a href="{{url_for('photoDetail', pID=line.pID) }}">{{line.pID}}</a></td>
     </tr>
 {% endfor %}
 </table>
