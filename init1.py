@@ -94,11 +94,21 @@ def registerAuth():
 def home():
     user = session['username']
     cursor = conn.cursor();
+    query = 'SELECT postingDate, pID FROM Photo WHERE allFollowers = %s ORDER BY postingDate DESC'
+    cursor.execute(query, 0)
+    data = cursor.fetchall()
+    cursor.close()
+    return render_template('home.html', username=user, posts=data)
+
+@app.route('/profile')
+def profile():
+    user = session['username']
+    cursor = conn.cursor();
     query = 'SELECT postingDate, pID FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
     data = cursor.fetchall()
     cursor.close()
-    return render_template('home.html', username=user, posts=data)
+    return render_template('profile.html', username=user, posts=data)
 
         
 @app.route('/post', methods=['GET', 'POST'])
@@ -113,7 +123,7 @@ def post():
     cursor.execute(query, (postingDate, photoPath, allFollowers, caption, username))
     conn.commit()
     cursor.close()
-    return redirect(url_for('home'))
+    return redirect(url_for('profile'))
 
 @app.route('/select_blogger')
 def select_blogger():
