@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
 import hashlib
+import datetime
 
 #Initialize the app from Flask
 app = Flask(__name__)
@@ -93,7 +94,7 @@ def registerAuth():
 def home():
     user = session['username']
     cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
+    query = 'SELECT postingDate, pID FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
     data = cursor.fetchall()
     cursor.close()
@@ -104,9 +105,12 @@ def home():
 def post():
     username = session['username']
     cursor = conn.cursor();
-    blog = request.form['blog']
-    query = 'INSERT INTO blog (blog_post, username) VALUES(%s, %s)'
-    cursor.execute(query, (blog, username))
+    postingDate = datetime.datetime.today();
+    photoPath = request.form['filePath'] #filePath is text
+    allFollowers = request.form['audiance'] #returns 1 if made private
+    caption = request.form['caption'] #caption is text
+    query = 'INSERT INTO Photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
+    cursor.execute(query, (postingDate, photoPath, allFollowers, caption, username))
     conn.commit()
     cursor.close()
     return redirect(url_for('home'))
