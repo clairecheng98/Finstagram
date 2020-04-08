@@ -93,9 +93,9 @@ def registerAuth():
 @app.route('/home')
 def home():
     user = session['username']
-    cursor = conn.cursor();
-    query = 'SELECT postingDate, pID FROM Photo WHERE allFollowers = %s ORDER BY postingDate DESC'
-    cursor.execute(query, 0)
+    cursor = conn.cursor()
+    query = 'SELECT postingDate, pID FROM Photo WHERE (poster = %s OR allFollowers = %s) ORDER BY postingDate DESC'
+    cursor.execute(query, (user, 1))
     data = cursor.fetchall()
     cursor.close()
     return render_template('home.html', username=user, posts=data)
@@ -103,7 +103,7 @@ def home():
 @app.route('/profile')
 def profile():
     user = session['username']
-    cursor = conn.cursor();
+    cursor = conn.cursor()
     query = 'SELECT postingDate, pID FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
     data = cursor.fetchall()
@@ -114,17 +114,15 @@ def profile():
 def photoDetail():
     photo = request.args.get('pID')
     print(photo)
-    cursor = conn.cursor();
-    query = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
-    cursor.execute(query, (photo))
+    cursor = conn.cursor()
+    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
+    cursor.execute(query1, (photo))
     data1 = cursor.fetchall()
-    cursor = conn.cursor();
-    query = 'SELECT * FROM ReactTo JOIN Person USING (username) WHERE pID = %s ORDER BY reactionTime DESC'
-    cursor.execute(query, (photo))
+    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
+    cursor.execute(query2, (photo))
     data2 = cursor.fetchall()
-    cursor = conn.cursor();
-    query = 'SELECT * FROM Tag WHERE (pID = %s AND tagStatus = 1)'
-    cursor.execute(query, (photo))
+    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
+    cursor.execute(query3, (photo))
     data3 = cursor.fetchall()
     cursor.close()
     return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
@@ -132,10 +130,10 @@ def photoDetail():
 @app.route('/post', methods=['GET', 'POST'])
 def post():
     username = session['username']
-    cursor = conn.cursor();
-    postingDate = datetime.datetime.today();
+    cursor = conn.cursor()
+    postingDate = datetime.datetime.today()
     photoPath = request.form['filePath'] #filePath is text
-    allFollowers = request.form['audiance'] #returns 1 if made private
+    allFollowers = request.form['audiance'] #returns 1 if public, 0 if private. more values to be add later
     caption = request.form['caption'] #caption is text
     query = 'INSERT INTO Photo (postingDate, filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
     cursor.execute(query, (postingDate, photoPath, allFollowers, caption, username))
@@ -149,7 +147,7 @@ def select_blogger():
     #username = session['username']
     #should throw exception if username not found
     
-    cursor = conn.cursor();
+    cursor = conn.cursor()
     query = 'SELECT DISTINCT username FROM blog'
     cursor.execute(query)
     data = cursor.fetchall()
