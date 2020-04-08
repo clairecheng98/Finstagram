@@ -8,22 +8,42 @@
     		border: 1px solid black;
     	}
     </style>
-
+    
+    {% for thisPic in photoDet %}
+    {{thisPic.pID}}</br>
+    <p>Photo Path: {{thisPic.filePath}}</p></br>
+    <p>Posted By {{thisPic.poster}}, {{thisPic.firstName}} {{thisPic.lastName}}</p></br>
+    <p>{{thisPic.caption}}</p></br>
+    <p>Posted on {{thisPic.datetime}}</p></br>
+    {% endfor %}
+    
+    <p> People Tagged in this photo: </p></br>
     <table>
-      <th>Time</th>
-      <th>Post</th>
-      <th>Poster</th>
-      <th>People Tagged</th>
-      <th>Reactions</th>
+      <th>username</th>
+      <th>First Name</th>
+      <th>Last Name</th>
 
+      {% for tag in tagged %}
       <tr>
-        <td>{{postingDate}}</td>
-        <td>{{pID}}</td>
-        <td>{{firstName}}
-        {{lastName}}</td>
-        <td>{{username}}</td>
-        <td>{{}}</td>
+        <td>{{tag.username}}</td>
+        <td>{{tag.firstName}}</td>
+        <td>{{tag.lastName}}</td>
       	</tr>
+      {% endfor %}
+    </table>
+    
+    <p> Reactions: </p></br>
+    <table>
+      <th>username</th>
+      <th>Reaction</th>
+      <th>Comment</th>
+
+      {% for line in react %}
+      <tr>
+        <td>{{react.username}}</td>
+        <td>{{react.firstName}}</td>
+        <td>{{react.lastName}}</td>
+        </tr>
       {% endfor %}
     </table>
   </body>

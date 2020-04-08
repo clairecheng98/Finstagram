@@ -109,7 +109,25 @@ def profile():
     data = cursor.fetchall()
     cursor.close()
     return render_template('profile.html', username=user, posts=data)
-
+    
+@app.route('/photoDetail', methods=['GET', 'POST'])
+def photoDetail():
+    photo = request.args.get('pID')
+    print(photo)
+    cursor = conn.cursor();
+    query = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
+    cursor.execute(query, (photo))
+    data1 = cursor.fetchall()
+    cursor = conn.cursor();
+    query = 'SELECT * FROM ReactTo JOIN Person USING (username) WHERE pID = %s ORDER BY reactionTime DESC'
+    cursor.execute(query, (photo))
+    data2 = cursor.fetchall()
+    cursor = conn.cursor();
+    query = 'SELECT * FROM Tag WHERE (pID = %s AND tagStatus = 1)'
+    cursor.execute(query, (photo))
+    data3 = cursor.fetchall()
+    cursor.close()
+    return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
         
 @app.route('/post', methods=['GET', 'POST'])
 def post():
