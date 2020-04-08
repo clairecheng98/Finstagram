@@ -19,7 +19,7 @@ Here are your feeds:
 {% for line in posts %}
 	<tr>
 		<td>{{line.postingDate}}</td>
-		<td>{{line.pID}}</td>
+		<td><a href="/photoDetail">{{line.pID}}</a></td>
 	</tr>
 {% endfor %}
 </table>

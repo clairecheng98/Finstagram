@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <style type="text/css">
+    	table, th, td{
+    		border: 1px solid black;
+    	}
+    </style>
+
+    <table>
+      <th>Time</th>
+      <th>Post</th>
+      <th>Poster</th>
+      <th>People Tagged</th>
+      <th>Reactions</th>
+
+      <tr>
+        <td>{{postingDate}}</td>
+        <td>{{pID}}</td>
+        <td>{{firstName}}
+        {{lastName}}</td>
+        <td>{{username}}</td>
+        <td>{{}}</td>
+      	</tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
