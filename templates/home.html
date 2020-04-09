@@ -24,6 +24,10 @@ News Feed:
 {% endfor %}
 </table>
 
+{% for line in posts %}
+<img src="./static/user_uploads/{{line.pID}}" /></br>
+{% endfor %}
+
 <a href="/profile">Share your own</a>
 <a href="/select_blogger">Select a blogger</a>
 <br>

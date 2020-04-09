@@ -2,9 +2,10 @@
 <head>
 </head>
 <body>
-<form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1>
-	<input type="text" name = "filePath" placeholder="Add a file path" required/> </br>
+    
+<h1>Welcome {{username}}</h1>
+<form action="/post" method="POST" enctype="multipart/form-data">
+    Select your picture: <input type="file" name="photo" required/> </br>
     <input type="text" name = "caption" placeholder="Add a caption"/> </br>
     <p>Who can view this photo?</p>
     <input type="radio" id="public" name="audiance" value="1">
@@ -30,11 +31,14 @@ Here are your posts:
 {% for line in posts %}
 	<tr>
 		<td>{{line.postingDate}}</td>
-        <td><a href="{{url_for('photoDetail', pID=line.pID) }}">{{line.pID}}</a></td>
+        <td><a href="{{url_for('photoDetail', pID=line.pID)}}">{{line.pID}}</a></td>
 	</tr>
 {% endfor %}
 </table>
 
+{% for line in posts %}
+<img src="./static/user_uploads/{{line.pID}}" /></br>
+{% endfor %}
 <a href="/select_blogger">Select a blogger</a>
 <br>
 <a href="/logout">Logout</a>

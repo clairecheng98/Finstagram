@@ -11,7 +11,8 @@
     
     {% for thisPic in photoDet %}
     {{thisPic.pID}}</br>
-    <p>Photo Path: {{thisPic.filePath}}</p></br>
+    <p>Photo Path: </p></br>
+    <img src="/static/user_uploads/{{thisPic.pID}}" />
     <p>Posted By {{thisPic.poster}}, {{thisPic.firstName}} {{thisPic.lastName}}</p></br>
     <p>{{thisPic.caption}}</p></br>
     <p>Posted on {{thisPic.postingDate}}</p></br>
