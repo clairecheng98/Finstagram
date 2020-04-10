@@ -1,14 +1,92 @@
 <!DOCTYPE html>
 <html>
+<style media="screen">
+	* {
+		display: border-box;
+		/* border: 1px solid black; */
+	}
 
+	body,
+	html {
+		margin: 0px;
+		padding: 0px;
+		font-family: 'Dancing Script', cursive;
+	}
+
+	.mainContainer{
+		/* background-image: url("https://picsum.photos/v2/list");
+		background-repeat: no-repeat;
+		background-size: cover; */
+		overflow: hidden;
+		height: 100vh;
+		background-position: center;
+	}
+
+	.mainContainer::after {
+	  content: "";
+	  background: url("https://picsum.photos/1480/1024?grayscale");
+	  opacity: 0.5;
+	  top: 0;
+	  left: 0;
+	  bottom: 0;
+	  right: 0;
+	  position: absolute;
+	  z-index: -1;
+	}
+
+	.mainContainer div{
+		display: flex;
+		justify-content: center;
+	}
+.header{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 50vh;
+
+}
+	h1{
+		font-size:5rem;
+	}
+
+	.nav{
+		display: flex;
+	  flex-direction: row;
+	  text-align: center;
+	}
+	.nav a{
+		padding: 1vmin;
+		font-size: 2rem;
+		width: 50%;
+		position: relative;
+		color:black;
+		text-decoration: none;
+	}
+
+	a:hover{
+		font-size: 2.5rem;
+	}
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <head>
-
 </head>
 
 <body>
-	<a href="/login">Login</a>
-	<br>
-	<a href="/register">Register</a>
+	<div class="mainContainer">
+		<div class="header">
+			<h1>Finstagram</h1>
+
+		</div>
+
+		<div class="nav">
+			<a href="/login">Login</a>
+			<br>
+			<a href="/register">Register</a>
+		</div>
+
+	</div>
+
 </body>
 
 </html>
