@@ -170,6 +170,16 @@ def post():
         cursor.close()
     return redirect(url_for('profile'))
 
+@app.route('/friend_group')
+def add_friend_group('/add_group',methods=["GET","POST"]):
+    if 'username' not in session:
+    return redirect(url_for('login'))
+    cursor = conn.cursor()
+    group_name = request.form['group_name']
+    description = request.form['description']
+    query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
+    cursor.execute(query,(group_name,username,description))
+
 @app.route('/select_blogger')
 def select_blogger():
     #check that user is logged in
@@ -182,6 +192,8 @@ def select_blogger():
     data = cursor.fetchall()
     cursor.close()
     return render_template('select_blogger.html', user_list=data)
+
+
 
 @app.route('/show_posts', methods=["GET", "POST"])
 def show_posts():
