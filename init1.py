@@ -173,7 +173,7 @@ def post():
 @app.route('/friend_group')
 def add_friend_group('/add_group',methods=["GET","POST"]):
     if 'username' not in session:
-    return redirect(url_for('login'))
+        return redirect(url_for('login'))
     cursor = conn.cursor()
     group_name = request.form['group_name']
     description = request.form['description']
