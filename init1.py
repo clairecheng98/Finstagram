@@ -113,8 +113,8 @@ def profile():
         return redirect(url_for('login'))
     user = session['username']
     cursor = conn.cursor()
-    query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s'
-    cursor.execute(query_pull, user)
+    query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s OR groupCreator = %s'
+    cursor.execute(query_pull, (user, user))
     fgs_data=cursor.fetchall()
     query = 'SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
