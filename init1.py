@@ -269,7 +269,7 @@ def add_friend(creator,group):
     if(creator == user): #check if creator is managing friends
         cursor = conn.cursor()
         error = None
-        if(user == friend_name)
+        if(user == friend_name): 
             error = "Cannot add group creator again. "
             return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
         checkuser = 'SELECT * FROM Person WHERE username = %s'
