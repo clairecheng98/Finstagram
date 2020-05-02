@@ -203,7 +203,7 @@ def friend_group():
     fgs_i_data = cursor.fetchall()
     conn.commit()
     cursor.close()
-    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=request.args.get('ifError'))
+    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=request.args.get('error'))
 
 
 @app.route('/add_friend_group',methods=['GET','POST'])
@@ -222,7 +222,7 @@ def add_friend_group():
     if(data):
         #If the previous query returns data, then user exists
         error = "This Friend Group already exists"
-        return redirect(url_for('friend_group', ifError=error))
+        return redirect(url_for('friend_group', error=error))
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
     cursor.execute(query,(group_name,user,description))
     conn.commit()
@@ -230,68 +230,54 @@ def add_friend_group():
     return redirect(url_for('friend_group'))
     
 
-@app.route('/groupDetail', methods=['GET', 'POST'])
-def groupDetail():
+@app.route('/groupDetail/<creator>/<group>', methods=['GET', 'POST'])
+def groupDetail(creator,group):
     if 'username' not in session:
         return redirect(url_for('login'))
-    photo = request.args.get('pID')
+    sess = False
+    error = None
+    user = session['username']
     cursor = conn.cursor()
-    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
-    cursor.execute(query1, (photo))
-    data1 = cursor.fetchall()
-    if(data1): disp_image(data1)
-    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
-    cursor.execute(query2, (photo))
-    data2 = cursor.fetchall()
-    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
-    cursor.execute(query3, (photo))
-    data3 = cursor.fetchall()
+    query = 'SELECT * FROM BelongTo WHERE groupName = %s AND groupCreator = %s'
+    cursor.execute(query, (group, creator))
+    member_data = cursor.fetchall()
+    if(user == creator):
+        sess = True
+    conn.commit()
     cursor.close()
-    return render_template('groupDetail.html')
+    return render_template('groupDetail.html', group=request.args.get('group'), creator=request.args.get('creator'), error=request.args.get('error'), members = member_data, sess=sess, gn = group, gc = creator)
     
     
-@app.route('/add_friend', methods=['GET', 'POST'])
-def add_friend():
+@app.route('/add_friend/<creator>/<group>', methods=['GET', 'POST'])
+def add_friend(creator,group):
     if 'username' not in session:
         return redirect(url_for('login'))
     user = session['username']
     friend_name = request.form['friend_name']
-    group_name = request.args.get('group_name')
-    cursor = conn.cursor()
-    #dup check
-    check = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
-    cursor.execute(check,(friend_name,group_name,user))
-    data = cursor.fetchall()
-    error = None
-    if(data):
-        error = "This friend is already in your group"
-        return redirect(url_for('groupDetail', ifError=error))
-    query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
-    cursor.execute(query,(group_name,user,friend_name))
-    conn.commit()
-    cursor.close()
-    return redirect(url_for('groupDetail'))
-    
-    
-@app.route('/groupDetail', methods=['GET', 'POST'])
-def groupDetail():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    photo = request.args.get('pID')
-    cursor = conn.cursor()
-    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
-    cursor.execute(query1, (photo))
-    data1 = cursor.fetchall()
-    if(data1): disp_image(data1)
-    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
-    cursor.execute(query2, (photo))
-    data2 = cursor.fetchall()
-    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
-    cursor.execute(query3, (photo))
-    data3 = cursor.fetchall()
-    cursor.close()
-    return render_template('groupDetail.html')
-    
+    print(creator == user)
+    if(creator == user): #check if creator is managing friends
+        cursor = conn.cursor()
+        error = None
+        checkuser = 'SELECT * FROM Person WHERE username = %s'
+        cursor.execute(checkuser,friend_name)
+        datau = cursor.fetchall()
+        if not datau:
+            error = "This user is not found. "
+            return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
+        #dup check
+        checkmembership = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
+        cursor.execute(checkmembership,(friend_name,group,user))
+        datam = cursor.fetchall()
+        if(datam):
+            error = "This friend is already in your group. "
+            return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
+        query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
+        cursor.execute(query,(group_name,user,friend_name))
+        conn.commit()
+        cursor.close()
+        return redirect(url_for('groupDetail',group=group, creator=creator))
+    error = "Unable to add. "
+    return redirect(url_for('groupDetail',group=group, creator=creator, error=error))
 
 '''
 FEATURE 4: MANAGE FOLLOWER

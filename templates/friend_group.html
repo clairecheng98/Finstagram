@@ -12,7 +12,7 @@
           <th>Description</th>
           {% for line in fgscreated %}
           <tr>
-            <td>{{line.groupName}}</td>
+            <td><a href="/groupDetail/{{line.groupCreator}}/{{line.groupName}}">{{line.groupName}}</a></td>
             <td>{{line.description}}<td>
           </tr>
           {% endfor %}
@@ -27,7 +27,7 @@
         <th>Description</th>
         {% for line in fgsin %}
         <tr>
-          <td>{{line.groupName}}</td>
+          <td><a href="/groupDetail/{{line.groupCreator}}/{{line.groupName}}">{{line.groupName}}</a></td>
           <td>{{line.groupCreator}}</td>
           <td>{{line.description}}<td>
         </tr>
