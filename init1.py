@@ -113,13 +113,69 @@ def profile():
         return redirect(url_for('login'))
     user = session['username']
     cursor = conn.cursor()
+    query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s'
+    cursor.execute(query_pull, user)
+    selfgs=cursor.fetchall()
     query = 'SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
-    data = cursor.fetchall()
+    pics = cursor.fetchall()
     cursor.close()
-    if(data): disp_image(data)
-    return render_template('profile.html', username=user, posts=data)
+    if(pics): disp_image(pics)
+    return render_template('profile.html', username=user, fgs=selfgs, posts=pics)
+
+
+@app.route('/post', methods=['GET', 'POST'])
+def post():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'photo' not in request.files:
+            print('No file part')
+            return redirect(url_for('home'))
+        photoPath = request.files['photo']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if photoPath.filename == '':
+            print('No selected file')
+            return redirect(url_for('home'))
+        if photoPath and not allowed_file(photoPath.filename):
+            print('File type not allowed')
+            return redirect(url_for('home'))
+        user = session['username']
+        cursor = conn.cursor()
+        photoBLOB = convertToBinaryData(photoPath)
+        postingDate = datetime.datetime.today()
+        allFollowers = check_followers(request.form['audiance']) #returns 1 if public, 0 if private
+        caption = request.form['caption'] #caption is text
+        query_push = 'INSERT INTO Photo (postingDate,filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
+        cursor.execute(query_push, (postingDate, photoBLOB, allFollowers, caption, user))
+        query_pID = 'SELECT LAST_INSERT_ID()'
+        cursor.execute(query_pID)
+        curr_pID = cursor.fetchone()
+        
+        
+        print(curr_pID)
+        
+        
+        insert_group = request.form.getlist('selected_fg')
+        
+        
+        print(insert_group)
+        
+        
+        
+        
+        for item in insert_group:
+            groupDet = item.split(" + ")
+            query_fg_push = 'INSERT INTO SharedWith (pID, groupName, group) VALUES (%s, %s, %s)'
+            #cursor.execute(query_fg_push, (str(curr_pID.items()[1]), groupDet[0], groupDet[1]))
+        
+        conn.commit()
+        cursor.close()
+    return redirect(url_for('profile'))
     
+ 
 @app.route('/photoDetail', methods=['GET', 'POST'])
 def photoDetail():
     if 'username' not in session:
@@ -139,46 +195,33 @@ def photoDetail():
     cursor.close()
     return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
         
-@app.route('/post', methods=['GET', 'POST'])
-def post():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    if request.method == 'POST':
-        # check if the post request has the file part
-        print(request.files)
-        if 'photo' not in request.files:
-            print('No file part')
-            return redirect(url_for('home'))
-        photoPath = request.files['photo']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if photoPath.filename == '':
-            print('No selected file')
-            return redirect(url_for('home'))
-        if photoPath and not allowed_file(photoPath.filename):
-            print('File type not allowed')
-            return redirect(url_for('home'))
-        username = session['username']
-        cursor = conn.cursor()
-        photoBLOB = convertToBinaryData(photoPath)
-        postingDate = datetime.datetime.today()
-        allFollowers = check_followers(request.form['audiance']) #returns 1 if public, 0 if private
-        caption = request.form['caption'] #caption is text
-        query = 'INSERT INTO Photo (postingDate,filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
-        cursor.execute(query, (postingDate, photoBLOB, allFollowers, caption, username))
-        conn.commit()
-        cursor.close()
-    return redirect(url_for('profile'))
 
-@app.route('/friend_group')
-def add_friend_group('/add_group',methods=["GET","POST"]):
+
+
+@app.route('/post_friend_group',methods=['GET','POST'])
+def post_friend_group():
     if 'username' not in session:
         return redirect(url_for('login'))
+    user = session['username']
+    cursor = conn.cursor()
+
+    query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
+    cursor.execute(query,(group_name,user,description))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('profile', fgs=data))
+
+
+@app.route('/add_friend_group',methods=['GET','POST'])
+def add_friend_group():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
     cursor = conn.cursor()
     group_name = request.form['group_name']
     description = request.form['description']
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
-    cursor.execute(query,(group_name,username,description))
+    cursor.execute(query,(group_name,user,description))
 
 @app.route('/select_blogger')
 def select_blogger():

@@ -13,7 +13,11 @@
     <input type="radio" id="private" name="audiance" value="0">
         <label for="private">Only Me</label>
         </br>
-	<input type="submit" value = Post />
+    <p>Select friend group(s) you would like to add to:</p></br>
+    {% for line in fgs %}
+        <input type="checkbox" name="selected_fg" value="{{line.groupName}} + {{line.groupCreator}}"> {{line.groupName}} created by {{line.groupCreator}} </input></br>
+    {% endfor %}
+    <input type="submit" value = Post />
 </form>
 
 <style type="text/css">
@@ -21,6 +25,8 @@
 		border: 1px solid black;
 	}
 </style>
+
+Don't have a friend group? Create a friend group now!</br>
 
 Here are your posts:
 
