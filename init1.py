@@ -150,16 +150,14 @@ def post():
         caption = request.form['caption'] #caption is text
         query_push = 'INSERT INTO Photo (postingDate,filePath, allFollowers, caption, poster) VALUES(%s, %s, %s, %s, %s)'
         cursor.execute(query_push, (postingDate, photoBLOB, allFollowers, caption, user))
-        query_pID = 'SELECT LAST_INSERT_ID()'
-        cursor.execute(query_pID)
-        curr_pID = cursor.fetchone()
-        print(curr_pID)
+        curr_pID = cursor.lastrowid
+        print("Current pID: " + str(curr_pID))
         insert_group = request.form.getlist('selected_fg')
         print(insert_group)
         for item in insert_group:
             groupDet = item.split(" + ")
             query_fg_push = 'INSERT INTO SharedWith (pID, groupName, groupCreator) VALUES (%s, %s, %s)'
-            cursor.execute(query_fg_push, (str(curr_pID['LAST_INSERT_ID()']), groupDet[0], groupDet[1]))
+            cursor.execute(query_fg_push, (str(curr_pID), groupDet[0], groupDet[1]))
         conn.commit()
         cursor.close()
     return redirect(url_for('profile'))
@@ -222,7 +220,7 @@ def manage_follow():
     cursor.execute(query, user)
     request = cursor.fetchall()
     
-    return render_template('manage_follow.html',followers=follower,followees=followee,follow_requests=request)
+    return render_template('manage_follow.html', followers=follower, followees=followee, follow_requests=request)
 
 @app.route('/add_follow',methods=['POST'])
 def add_follow():
@@ -257,7 +255,7 @@ def decline_follow(follower):
     user = session['username']
     query = 'DELETE FROM Follow WHERE follower = %s AND followee = %s'
     cursor = conn.cursor()
-    cursor.execute(query,(followeer,user))
+    cursor.execute(query,(follower,user))
     conn.commit()
     cursor.close()
     return redirect(url_for('manage_follow'))
@@ -267,7 +265,8 @@ def select_blogger():
     #check that user is logged in
     #username = session['username']
     #should throw exception if username not found
-    
+    if 'username' not in session:
+        return redirect(url_for('login'))
     cursor = conn.cursor()
     query = 'SELECT DISTINCT username FROM blog'
     cursor.execute(query)
