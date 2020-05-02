@@ -2,13 +2,49 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Create a Friend Group</title>
+    <title>Manage Your Friend Groups</title>
   </head>
   <body>
-    <form action="/friend_group" method="post">
-      <input type="text" name = "group_name" placeholder="Enter a group name" required/> </br>
-      <input type="text" name = "description" placeholder="Enter a description for your group" /> </br>
-      <input type="submit" value = create />
-    </form>
+    <div class="group_you_created">
+        <h3>Friend Groups You Created</h3>
+        <table>
+          <th>Group Name</th>
+          <th>Description</th>
+          {% for line in fgscreated %}
+          <tr>
+            <td>{{line.groupName}}</td>
+            <td>{{line.description}}<td>
+          </tr>
+          {% endfor %}
+        </table>
+    </div>
+    
+    <div class="group_you_in">
+      <h3>Friend Groups You Are In</h3>
+      <table>
+        <th>Group Name</th>
+        <th>Created By</th>
+        <th>Description</th>
+        {% for line in fgsin %}
+        <tr>
+          <td>{{line.groupName}}</td>
+          <td>{{line.groupCreator}}</td>
+          <td>{{line.description}}<td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    
+    <div class="create_group">
+      <form action="/add_friend_group" method="post">
+        <h3>Create a Friend Group</h3>
+        <input type="text" name = "group_name" placeholder="Enter a group name" required/> </br>
+        <input type="text" name = "description" placeholder="Enter a description for your group" /> </br>
+        <input type="submit" value = "Create" />
+      </form>
+      {% if error %}
+          <p class="error"><strong>Error:</strong> {{error}}</p>
+      {% endif %}
+    </div>
   </body>
 </html>

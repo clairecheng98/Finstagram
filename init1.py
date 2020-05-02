@@ -182,22 +182,48 @@ def photoDetail():
     data3 = cursor.fetchall()
     cursor.close()
     return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
-        
 
 
+@app.route('/friend_group',methods=['GET','POST'])
+def friend_group():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    error = None
+    user = session['username']
+    cursor = conn.cursor()
+    query_c = 'SELECT * FROM FriendGroup WHERE groupCreator = %s'
+    cursor.execute(query_c, (user))
+    fgs_c_data = cursor.fetchall()
+    query_i = 'SELECT groupName, groupCreator, description FROM BelongTo JOIN FriendGroup USING(groupName,groupCreator) WHERE username = %s'
+    cursor.execute(query_i, (user))
+    fgs_i_data = cursor.fetchall()
+    conn.commit()
+    cursor.close()
+    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=error)
 
-@app.route('/post_friend_group',methods=['GET','POST'])
-def post_friend_group():
+
+@app.route('/add_friend_group',methods=['GET','POST'])
+def add_friend_group():
     if 'username' not in session:
         return redirect(url_for('login'))
     user = session['username']
+    group_name = request.form['group_name']
+    description = request.form['description']
     cursor = conn.cursor()
-
+    #dup check
+    check = 'SELECT * FROM FriendGroup WHERE groupName = %s AND groupCreator = %s'
+    cursor.execute(check,(group_name,user))
+    data = cursor.fetchall()
+    error = None
+    if(data):
+        #If the previous query returns data, then user exists
+        error = "This Friend Group already exists"
+        return redirect(url_for('friend_group', error = error))
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
     cursor.execute(query,(group_name,user,description))
     conn.commit()
     cursor.close()
-    return redirect(url_for('profile', fgs=data))
+    return redirect(url_for('friend_group'))
 
 
 @app.route('/manage_follow',methods=['GET'])
