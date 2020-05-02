@@ -201,9 +201,12 @@ def friend_group():
     query_i = 'SELECT groupName, groupCreator, description FROM BelongTo JOIN FriendGroup USING(groupName,groupCreator) WHERE username = %s'
     cursor.execute(query_i, (user))
     fgs_i_data = cursor.fetchall()
+    query_pull = 'SELECT * FROM Follow WHERE followee = %s AND followStatus = 1' #SET AS 1 FOR NOW
+    cursor.execute(query_pull, (user))
+    followers_data = cursor.fetchall()
     conn.commit()
     cursor.close()
-    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=request.args.get('error'))
+    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, followers = followers_data, error=request.args.get('error'))
 
 
 @app.route('/add_friend_group',methods=['GET','POST'])
@@ -225,6 +228,11 @@ def add_friend_group():
         return redirect(url_for('friend_group', error=error))
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
     cursor.execute(query,(group_name,user,description))
+    add_member = request.form.getlist('add_members_at_creation')
+    print(add_member)
+    for person in add_member:
+        query_push = 'INSERT INTO BelongTo (username, groupName, groupCreator) VALUES (%s, %s, %s)'
+        cursor.execute(query_push,(person, group_name, user))
     conn.commit()
     cursor.close()
     return redirect(url_for('friend_group'))
@@ -275,7 +283,7 @@ def add_friend(creator,group):
             error = "This friend is already in your group. "
             return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
         query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
-        cursor.execute(query,(group_name,user,friend_name))
+        cursor.execute(query,(group,user,friend_name))
         conn.commit()
         cursor.close()
         return redirect(url_for('groupDetail',group=group, creator=creator))
