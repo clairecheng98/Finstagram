@@ -115,13 +115,13 @@ def profile():
     cursor = conn.cursor()
     query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s'
     cursor.execute(query_pull, user)
-    selfgs=cursor.fetchall()
+    fgs_data=cursor.fetchall()
     query = 'SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
     pics = cursor.fetchall()
     cursor.close()
     if(pics): disp_image(pics)
-    return render_template('profile.html', username=user, fgs=selfgs, posts=pics)
+    return render_template('profile.html', username=user, fgs=fgs_data, posts=pics)
 
 
 @app.route('/post', methods=['GET', 'POST'])
@@ -238,14 +238,17 @@ def groupDetail(creator,group):
     error = None
     user = session['username']
     cursor = conn.cursor()
-    query = 'SELECT * FROM BelongTo WHERE groupName = %s AND groupCreator = %s'
-    cursor.execute(query, (group, creator))
+    query_member = 'SELECT * FROM BelongTo WHERE groupName = %s AND groupCreator = %s'
+    cursor.execute(query_member, (group, creator))
     member_data = cursor.fetchall()
     if(user == creator):
         sess = True
+    query_pics = 'SELECT * FROM SharedWith JOIN Photo USING (pID) WHERE groupName = %s AND groupCreator = %s'
+    cursor.execute(query_pics, (group, creator))
+    pics = cursor.fetchall()
     conn.commit()
     cursor.close()
-    return render_template('groupDetail.html', group=request.args.get('group'), creator=request.args.get('creator'), error=request.args.get('error'), members = member_data, sess=sess, gn = group, gc = creator)
+    return render_template('groupDetail.html', group=request.args.get('group'), creator=request.args.get('creator'), error=request.args.get('error'), photos=pics, members = member_data, sess=sess, gn = group, gc = creator)
     
     
 @app.route('/add_friend/<creator>/<group>', methods=['GET', 'POST'])
@@ -363,9 +366,9 @@ def select_blogger():
 
 
 
-@app.route('/show_posts', methods=["GET", "POST"])
-def show_posts():
-    poster = request.args['poster']
+@app.route('/show_posts/<poster>', methods=["GET", "POST"])
+def show_posts(poster):
+    #poster = request.args['poster']
     cursor = conn.cursor();
     query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
     cursor.execute(query, poster)
