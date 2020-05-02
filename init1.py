@@ -20,6 +20,10 @@ conn = pymysql.connect(host='localhost',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
+'''
+BASIC STRUCTURE
+'''
+
 #Define a route to hello function
 @app.route('/')
 def hello():
@@ -94,6 +98,10 @@ def registerAuth():
         return render_template('index.html')
 
 
+'''
+FEATURE 1: VIEW VISIBLE PHOTOS
+POTENTIAL PROBLEM: DO WE SHOW PICS IN THE FRIENDGROUP?
+'''
 @app.route('/home')
 def home():
     if 'username' not in session:
@@ -107,6 +115,11 @@ def home():
     if(data): disp_image(data)
     return render_template('home.html', username=user, posts=data)
 
+
+'''
+FEATURE 3: POST A PHOTO
+INTEGRATED WITHIN USER'S PROFILE PAGE
+'''
 @app.route('/profile')
 def profile():
     if 'username' not in session:
@@ -163,31 +176,46 @@ def post():
     return redirect(url_for('profile'))
         
     
- 
+'''
+FEATURE 2: PHOTO DETAILS
+SEPARATE PAGE AFTER CLICKING ON A PHOTO
+'''
 @app.route('/photoDetail', methods=['GET', 'POST'])
 def photoDetail():
     if 'username' not in session:
         return redirect(url_for('login'))
+    user=session['username']
     photo = request.args.get('pID')
     cursor = conn.cursor()
-    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
-    cursor.execute(query1, (photo))
-    data1 = cursor.fetchall()
-    if(data1): disp_image(data1)
-    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
-    cursor.execute(query2, (photo))
-    data2 = cursor.fetchall()
-    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
-    cursor.execute(query3, (photo))
-    data3 = cursor.fetchall()
-    cursor.close()
-    return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
+    error = None
+    query_check = 'SELECT poster, allFollowers FROM Photo WHERE pID = %s'
+    cursor.execute(query_check, (photo))
+    data_check = cursor.fetchone() #dictcursor. fetchall returns list of dicts
+    #PREVENT pID HIJACKING
+    if(data_check['allFollowers'] == 1) or (data_check['poster'] == user):
+        query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
+        cursor.execute(query1, (photo))
+        data1 = cursor.fetchall()
+        if(data1): disp_image(data1)
+        query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
+        cursor.execute(query2, (photo))
+        data2 = cursor.fetchall()
+        query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
+        cursor.execute(query3, (photo))
+        data3 = cursor.fetchall()
+        conn.commit()
+        cursor.close()
+    else:
+        data1 = None
+        data2 = None
+        data3 = None
+        error = "You do not have permission to view this photo."
+    return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3, error=error)
 
 
 '''
 FEATURE 5 & 11: MANAGE FRIEND GROUP
 '''
-
 @app.route('/friend_group',methods=['GET','POST'])
 def friend_group():
     if 'username' not in session:
@@ -269,7 +297,7 @@ def add_friend(creator,group):
     if(creator == user): #check if creator is managing friends
         cursor = conn.cursor()
         error = None
-        if(user == friend_name): 
+        if(user == friend_name):
             error = "Cannot add group creator again. "
             return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
         checkuser = 'SELECT * FROM Person WHERE username = %s'
