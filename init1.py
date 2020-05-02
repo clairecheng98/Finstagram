@@ -184,6 +184,10 @@ def photoDetail():
     return render_template('photoDetail.html', photoDet=data1, tagged=data2, react=data3)
 
 
+'''
+FEATURE 5 & 11: MANAGE FRIEND GROUP
+'''
+
 @app.route('/friend_group',methods=['GET','POST'])
 def friend_group():
     if 'username' not in session:
@@ -199,7 +203,7 @@ def friend_group():
     fgs_i_data = cursor.fetchall()
     conn.commit()
     cursor.close()
-    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=error)
+    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, error=request.args.get('ifError'))
 
 
 @app.route('/add_friend_group',methods=['GET','POST'])
@@ -218,14 +222,80 @@ def add_friend_group():
     if(data):
         #If the previous query returns data, then user exists
         error = "This Friend Group already exists"
-        return redirect(url_for('friend_group', error = error))
+        return redirect(url_for('friend_group', ifError=error))
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
     cursor.execute(query,(group_name,user,description))
     conn.commit()
     cursor.close()
     return redirect(url_for('friend_group'))
+    
 
+@app.route('/groupDetail', methods=['GET', 'POST'])
+def groupDetail():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    photo = request.args.get('pID')
+    cursor = conn.cursor()
+    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
+    cursor.execute(query1, (photo))
+    data1 = cursor.fetchall()
+    if(data1): disp_image(data1)
+    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
+    cursor.execute(query2, (photo))
+    data2 = cursor.fetchall()
+    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
+    cursor.execute(query3, (photo))
+    data3 = cursor.fetchall()
+    cursor.close()
+    return render_template('groupDetail.html')
+    
+    
+@app.route('/add_friend', methods=['GET', 'POST'])
+def add_friend():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    friend_name = request.form['friend_name']
+    group_name = request.args.get('group_name')
+    cursor = conn.cursor()
+    #dup check
+    check = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
+    cursor.execute(check,(friend_name,group_name,user))
+    data = cursor.fetchall()
+    error = None
+    if(data):
+        error = "This friend is already in your group"
+        return redirect(url_for('groupDetail', ifError=error))
+    query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
+    cursor.execute(query,(group_name,user,friend_name))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('groupDetail'))
+    
+    
+@app.route('/groupDetail', methods=['GET', 'POST'])
+def groupDetail():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    photo = request.args.get('pID')
+    cursor = conn.cursor()
+    query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
+    cursor.execute(query1, (photo))
+    data1 = cursor.fetchall()
+    if(data1): disp_image(data1)
+    query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
+    cursor.execute(query2, (photo))
+    data2 = cursor.fetchall()
+    query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
+    cursor.execute(query3, (photo))
+    data3 = cursor.fetchall()
+    cursor.close()
+    return render_template('groupDetail.html')
+    
 
+'''
+FEATURE 4: MANAGE FOLLOWER
+'''
 @app.route('/manage_follow',methods=['GET'])
 def manage_follow():
     if 'username' not in session:
@@ -285,6 +355,11 @@ def decline_follow(follower):
     conn.commit()
     cursor.close()
     return redirect(url_for('manage_follow'))
+
+
+'''
+FEATURE 10: SEARCH BY POSTER
+'''
 
 @app.route('/select_blogger')
 def select_blogger():
