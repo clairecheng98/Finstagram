@@ -2,7 +2,7 @@
 <head>
 </head>
 <body>
-    
+
 <h1>Welcome {{username}}</h1>
 <form action="/post" method="POST" enctype="multipart/form-data">
     Select your picture: <input type="file" name="photo" required/> </br>
@@ -47,6 +47,7 @@ Here are your posts:
 {% endfor %}
 <a href="/select_blogger">Select a blogger</a>
 <br>
+<a href="/manage_follow">Manage your follows</a>
 <a href="/logout">Logout</a>
 
 </body>

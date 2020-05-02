@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="search">
+      <form action="/search_follow" method="post">
+        <h3>Search for an user to follow: </h3>
+        <input type="text" name="username" placeholder="username" >
+        <br/>
+        <p><input type="submit" value="Send A Request"> </p>
+      </form>
+    </div>
+
+    <div class="following">
+      <h3>People you are following:</h3>
+      <table>
+        {% for line in followers %}
+        <p>{{line.follower}}</p>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="followers">
+      <h3>People who are following you:</h3>
+      <table>
+        {% for line in followees %}
+        <p>{{line.followee}}</p>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="requests">
+      <h3>Follow Requests</h3>
+        {% for line in follow_requests %}
+          <p> {{line.follower}}
+            <form action = "/accept_follow/{{line.follower}}" method = "POST">
+              <input type="submit" value="Accpet">
+            </form>
+            <form action = "/decline_follow/{{line.follower}}" method = "POST">
+                <input type="submit" value="Decline"><p>
+            </form>
+             {% endfor %}
+    </div>
+    <a href="/">Return to Profile</a>
+  </body>
+</html>

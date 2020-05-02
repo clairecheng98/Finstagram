@@ -153,27 +153,17 @@ def post():
         query_pID = 'SELECT LAST_INSERT_ID()'
         cursor.execute(query_pID)
         curr_pID = cursor.fetchone()
-        
-        
         print(curr_pID)
-        
-        
         insert_group = request.form.getlist('selected_fg')
-        
-        
         print(insert_group)
-        
-        
-        
-        
         for item in insert_group:
             groupDet = item.split(" + ")
-            query_fg_push = 'INSERT INTO SharedWith (pID, groupName, group) VALUES (%s, %s, %s)'
-            #cursor.execute(query_fg_push, (str(curr_pID.items()[1]), groupDet[0], groupDet[1]))
-        
+            query_fg_push = 'INSERT INTO SharedWith (pID, groupName, groupCreator) VALUES (%s, %s, %s)'
+            cursor.execute(query_fg_push, (str(curr_pID['LAST_INSERT_ID()']), groupDet[0], groupDet[1]))
         conn.commit()
         cursor.close()
     return redirect(url_for('profile'))
+        
     
  
 @app.route('/photoDetail', methods=['GET', 'POST'])
@@ -212,16 +202,65 @@ def post_friend_group():
     return redirect(url_for('profile', fgs=data))
 
 
-@app.route('/add_friend_group',methods=['GET','POST'])
-def add_friend_group():
+@app.route('/manage_follow',methods=['GET'])
+def manage_follow():
     if 'username' not in session:
         return redirect(url_for('login'))
     user = session['username']
+    query = 'SELECT * FROM Follow WHERE followee=%s AND followstatus=1'
     cursor = conn.cursor()
-    group_name = request.form['group_name']
-    description = request.form['description']
-    query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
-    cursor.execute(query,(group_name,user,description))
+    cursor.execute(query, user)
+    follower = cursor.fetchall()
+    
+    query = 'SELECT * FROM Follow WHERE follower=%s AND followstatus=1'
+    cursor = conn.cursor()
+    cursor.execute(query, user)
+    followee = cursor.fetchall()
+    
+    query = 'SELECT * FROM Follow WHERE followee=%s AND followstatus=0'
+    cursor = conn.cursor()
+    cursor.execute(query, user)
+    request = cursor.fetchall()
+    
+    return render_template('manage_follow.html',followers=follower,followees=followee,follow_requests=request)
+
+@app.route('/add_follow',methods=['POST'])
+def add_follow():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    follow_name = request.form['username']
+    follow_status = 0
+    query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
+    cursor = conn.cursor()
+    cursor.execute(query,(follow_name,user,follow_status))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('manage_follow'))
+
+@app.route('/accept_follow/<follower>',methods=['POST'])
+def accept_follow(follower):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    query = 'UPDATE Follow SET followStatus = 1 WHERE follower = % AND followee = %s'
+    cursor = conn.cursor()
+    cursor.execute(query,(follower,user))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('manage_follow'))
+    
+@app.route('/decline_follow/<follower>',methods=['POST'])
+def decline_follow(follower):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    query = 'DELETE FROM Follow WHERE follower = % AND followee = %s'
+    cursor = conn.cursor()r
+    cursor.execute(query,(followeer,user))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('manage_follow'))
 
 @app.route('/select_blogger')
 def select_blogger():
