@@ -243,7 +243,7 @@ def accept_follow(follower):
     if 'username' not in session:
         return redirect(url_for('login'))
     user = session['username']
-    query = 'UPDATE Follow SET followStatus = 1 WHERE follower = % AND followee = %s'
+    query = 'UPDATE Follow SET followStatus = 1 WHERE follower = %s AND followee = %s'
     cursor = conn.cursor()
     cursor.execute(query,(follower,user))
     conn.commit()
@@ -255,8 +255,8 @@ def decline_follow(follower):
     if 'username' not in session:
         return redirect(url_for('login'))
     user = session['username']
-    query = 'DELETE FROM Follow WHERE follower = % AND followee = %s'
-    cursor = conn.cursor()r
+    query = 'DELETE FROM Follow WHERE follower = %s AND followee = %s'
+    cursor = conn.cursor()
     cursor.execute(query,(followeer,user))
     conn.commit()
     cursor.close()
