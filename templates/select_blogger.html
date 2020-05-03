@@ -13,15 +13,13 @@
 	<p><input type="submit" value="submit"></p>
 </form>
 
-<form action="/show_posts" method="GET">
 
 
 {% for line in user_list %}
-<input type="radio" name="poster" value={{line.username}}>{{line.username}}</input>
-	<br>
+<a href="{{url_for('show_post', poster=line.username) }}">{{line.username}}</a>
+<br>
 {% endfor %}
 
-<input type="submit" value="View Posts">
 
 </form>
 

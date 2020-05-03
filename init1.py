@@ -399,7 +399,8 @@ def select_blogger():
     cursor = conn.cursor()
     user = session['username']
     name_input = request.form['username']
-    query = 'SELECT DISTINCT username FROM Person WHERE username LIKE %s'
+    searchRes = name_input + '%'
+    query = 'SELECT DISTINCT username FROM Person WHERE searchRes LIKE %s'
     cursor.execute(query,name_input)
     data = cursor.fetchall()
     cursor.close()
