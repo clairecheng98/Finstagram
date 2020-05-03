@@ -188,11 +188,12 @@ def photoDetail():
     photo = request.args.get('pID')
     cursor = conn.cursor()
     error = None
-    query_check = 'SELECT poster, allFollowers FROM Photo WHERE pID = %s'
-    cursor.execute(query_check, (photo))
+    query_check = 'SELECT pID FROM Photo WHERE pID = %s AND (poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s)) ORDER BY postingDate DESC'
+    cursor.execute(query_check, (photo, user, user, user))
     data_check = cursor.fetchone() #dictcursor. fetchall returns list of dicts
+    print(data_check)
     #PREVENT pID HIJACKING
-    if(data_check['allFollowers'] == 1) or (data_check['poster'] == user):
+    if(str(data_check['pID']) == photo):
         query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
         cursor.execute(query1, (photo))
         data1 = cursor.fetchall()
@@ -249,7 +250,7 @@ def add_friend_group():
     cursor.execute(check,(group_name,user))
     data = cursor.fetchall()
     if(data):
-        #If the previous query returns data, then user exists
+        #dup check
         error = "This Friend Group already exists"
         return redirect(url_for('friend_group', error=error))
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
@@ -475,12 +476,11 @@ def unfollow_poster(poster):
     remove_follow='DELETE FROM Follow WHERE follower = %s AND followee = %s'
     cursor.execute(remove_follow, (user,poster))
     conn.commit()
-    tag_check='SELECT pID FROM Photo JOIN Tag USING (pID) WHERE username = %s AND poster = %s AND NOT EXISTS (SELECT * FROM BelongTo AS p1 JOIN BelongTo AS p2 USING (groupName, groupCreator) WHERE p1.username = %s AND p2.username = %s)'
+    tag_check='SELECT pID FROM Photo JOIN Tag USING (pID) WHERE (username = %s AND poster = %s) AND NOT EXISTS (SELECT * FROM BelongTo AS p1 JOIN BelongTo AS p2 USING (groupName, groupCreator) WHERE p1.username = %s AND p2.username = %s)'
     cursor.execute(tag_check, (user, poster, user, poster))
     res = cursor.fetchall()
     print(res)
     for pics in res:
-        print(str(pics['pID']))
         remove_tag='DELETE FROM Tag WHERE pID = %s AND username = %s'
         cursor.execute(remove_tag, (str(pics['pID']), user))
         conn.commit()
