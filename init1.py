@@ -436,8 +436,8 @@ def show_posts(poster):
     cursor.execute(view,(user,user))
     cursor.execute(query, poster)
     '''
-    query='SELECT * FROM Photo JOIN Person ON (poster=username) WHERE pID IN (SELECT pID FROM Photo AS p JOIN Follow ON (poster = followee) WHERE follower = %s AND followStatus = 1 AND (allFollowers = 1 OR %s IN (SELECT username FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE pID = p.pID))) ORDER BY postingDate DESC'
-    cursor.execute(query,(poster,user))
+    query='SELECT * FROM (SELECT * FROM Photo AS p JOIN Follow ON (poster = followee) WHERE follower = %s AND followStatus = 1 AND (allFollowers = 1 OR %s IN (SELECT username FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE pID = p.pID))) AS visiblePhoto WHERE poster = %s ORDER BY postingDate DESC'
+    cursor.execute(query,(user,user,poster))
     data = cursor.fetchall()
     #cursor.execute(cleanup)
     cursor.close()
