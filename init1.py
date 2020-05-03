@@ -419,13 +419,17 @@ def search_blogger():
 
 @app.route('/show_posts/<poster>', methods=['GET', 'POST'])
 def show_posts(poster):
-    poster = request.args['poster']
-    cursor = conn.cursor();
-    query = 'SELECT pID, filePath FROM Photo WHERE pID in (SELECT pID FROM SharedWith WHERE groupName in (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator=%s)) ORDER BY postingDate DESC'
+    user = session['username']
+    cursor = conn.cursor()
+    cleanup = 'DROP VIEW visiblePhoto'
+    cursor.execute(cleanup)
+    view = 'CREATE VIEW visiblePhoto AS SELECT pID, poster,postingDate FROM Photo WHERE allFollowers= 1 OR (pID in (SELECT pID FROM SharedWith WHERE groupName in (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s))) ORDER BY postingDate DESC'
+    query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
+    cursor.execute(view,(user,user))
     cursor.execute(query, poster)
     data = cursor.fetchall()
     cursor.close()
-    return render_template('show_posts.html', poster_name=poster, posts=data)
+    return render_template('show_posts.html', posts=data)
 
 @app.route('/logout')
 def logout():

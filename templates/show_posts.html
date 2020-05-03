@@ -17,8 +17,9 @@ Here are posts by {{poster_name}}:
 
 {% for line in posts %}
 	<tr>
-		<td>{{line.ts}}</td>
-		<td>{{line.blog_post}}</td>
+		<td>{{line.postingDate}}</td>
+		<td><a href="{{url_for('photoDetail', pID=line.pID)}}">
+		</a></td>
 	</tr>
 {% endfor %}
 </table>
