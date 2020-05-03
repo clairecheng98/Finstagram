@@ -413,8 +413,22 @@ def search_blogger():
 
 @app.route('/show_posts/<poster>', methods=['GET', 'POST'])
 def show_posts(poster):
+    if 'username' not in session:
+        return redirect(url_for('login'))
     user = session['username']
+    if(poster == user):
+        return redirect(url_for('profile'))
+    notfollowed = False
+    followPending = False
     cursor = conn.cursor()
+    follow_check='SELECT followStatus FROM Follow WHERE follower = %s AND followee = %s'
+    cursor.execute(follow_check,(user,poster))
+    fc = cursor.fetchone()
+    print(fc)
+    if not fc:
+        notfollowed = True
+    elif (fc['followStatus'] == 0):
+        followPending = True
     '''
     cleanup = 'DROP VIEW visiblePhoto'
     view = 'CREATE VIEW visiblePhoto AS (SELECT pID, poster,postingDate FROM Photo WHERE pID IN (SELECT pID FROM SharedWith WHERE groupName IN (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s)) ORDER BY postingDate DESC)'
@@ -427,7 +441,24 @@ def show_posts(poster):
     data = cursor.fetchall()
     #cursor.execute(cleanup)
     cursor.close()
-    return render_template('show_posts.html', posts=data, poster_name = poster)
+    return render_template('show_posts.html', posts=data, poster_name = poster, notfollowed=notfollowed, followPending=followPending, poster=request.args.get('poster'))
+
+#INTENDED SOLUTION IF show_posts FOR UNFOLLOWED PERSON
+@app.route('/follow_poster/<poster>',methods=['POST'])
+def follow_poster(poster):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user = session['username']
+    follow_status = 0
+    if(poster == user):
+        return redirect(url_for('profile'))
+    query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
+    cursor = conn.cursor()
+    cursor.execute(query,(user,poster,follow_status))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('show_posts', poster=poster))
+
 
 @app.route('/logout')
 def logout():

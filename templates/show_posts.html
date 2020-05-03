@@ -11,6 +11,18 @@
 
 Here are posts by {{poster_name}}:
 
+{% if notfollowed %}
+<form action="/follow_poster/{{poster_name}}" method="POST">
+    <input type="submit" value = "Follow" />
+</form>
+{% else %}
+{% if followPending %}
+<p> Follow Request Sent </p>
+{% else %}
+<p> Following </p>
+{% endif %}
+{% endif %}
+
 <table>
 	<th>Time</th>
 	<th>Post</th>
