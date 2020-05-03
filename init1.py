@@ -108,8 +108,8 @@ def home():
         return redirect(url_for('login'))
     user = session['username']
     cursor = conn.cursor()
-    query = 'SELECT postingDate, pID, filePath FROM Photo WHERE (poster = %s OR allFollowers = %s) ORDER BY postingDate DESC'
-    cursor.execute(query, (user, 1))
+    query = 'SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'
+    cursor.execute(query, (user, user, user))
     data = cursor.fetchall()
     cursor.close()
     if(data): disp_image(data)
@@ -126,8 +126,8 @@ def profile():
         return redirect(url_for('login'))
     user = session['username']
     cursor = conn.cursor()
-    query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s OR groupCreator = %s'
-    cursor.execute(query_pull, (user, user))
+    query_pull = 'SELECT groupName, groupCreator FROM BelongTo WHERE username = %s'
+    cursor.execute(query_pull, (user))
     fgs_data=cursor.fetchall()
     query = 'SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query, (user))
@@ -227,7 +227,7 @@ def friend_group():
     fgs_c_data = cursor.fetchall()
     '''
     query_in = 'SELECT groupName, groupCreator, description FROM BelongTo JOIN FriendGroup USING(groupName,groupCreator) WHERE username = %s'
-    cursor.execute(query_i, (user))
+    cursor.execute(query_in, (user))
     fgs_data = cursor.fetchall()
     query_pull = 'SELECT * FROM Follow WHERE followee = %s AND followStatus = 1' #SET AS 1 FOR NOW
     cursor.execute(query_pull, (user))
