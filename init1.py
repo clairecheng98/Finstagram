@@ -203,7 +203,6 @@ def photoDetail():
         query3 = 'SELECT * FROM ReactTo WHERE pID = %s ORDER BY reactionTime DESC'
         cursor.execute(query3, (photo))
         data3 = cursor.fetchall()
-        conn.commit()
         cursor.close()
     else:
         data1 = None
@@ -220,7 +219,6 @@ FEATURE 5 & 11: MANAGE FRIEND GROUP
 def friend_group():
     if 'username' not in session:
         return redirect(url_for('login'))
-    error = None
     user = session['username']
     cursor = conn.cursor()
     query_c = 'SELECT * FROM FriendGroup WHERE groupCreator = %s'
@@ -232,7 +230,6 @@ def friend_group():
     query_pull = 'SELECT * FROM Follow WHERE followee = %s AND followStatus = 1' #SET AS 1 FOR NOW
     cursor.execute(query_pull, (user))
     followers_data = cursor.fetchall()
-    conn.commit()
     cursor.close()
     return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, followers = followers_data, error=request.args.get('error'))
 
@@ -249,7 +246,6 @@ def add_friend_group():
     check = 'SELECT * FROM FriendGroup WHERE groupName = %s AND groupCreator = %s'
     cursor.execute(check,(group_name,user))
     data = cursor.fetchall()
-    error = None
     if(data):
         #If the previous query returns data, then user exists
         error = "This Friend Group already exists"
@@ -271,7 +267,6 @@ def groupDetail(creator,group):
     if 'username' not in session:
         return redirect(url_for('login'))
     sess = False
-    error = None
     user = session['username']
     cursor = conn.cursor()
     query_member = 'SELECT * FROM BelongTo WHERE groupName = %s AND groupCreator = %s'
@@ -282,7 +277,6 @@ def groupDetail(creator,group):
     query_pics = 'SELECT * FROM SharedWith JOIN Photo USING (pID) WHERE groupName = %s AND groupCreator = %s'
     cursor.execute(query_pics, (group, creator))
     pics = cursor.fetchall()
-    conn.commit()
     cursor.close()
     return render_template('groupDetail.html', group=request.args.get('group'), creator=request.args.get('creator'), error=request.args.get('error'), photos=pics, members = member_data, sess=sess, gn = group, gc = creator)
     
@@ -294,31 +288,31 @@ def add_friend(creator,group):
     user = session['username']
     friend_name = request.form['friend_name']
     print(creator == user)
+    error = None
     if(creator == user): #check if creator is managing friends
         cursor = conn.cursor()
-        error = None
         if(user == friend_name):
             error = "Cannot add group creator again. "
-            return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
-        checkuser = 'SELECT * FROM Person WHERE username = %s'
-        cursor.execute(checkuser,friend_name)
-        datau = cursor.fetchall()
-        if not datau:
-            error = "This user is not found. "
-            return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
-        #dup check
-        checkmembership = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
-        cursor.execute(checkmembership,(friend_name,group,user))
-        datam = cursor.fetchall()
-        if(datam):
-            error = "This friend is already in your group. "
-            return redirect(url_for('groupDetail', group=group, creator=creator, error=error))
-        query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
-        cursor.execute(query,(group,user,friend_name))
-        conn.commit()
-        cursor.close()
-        return redirect(url_for('groupDetail',group=group, creator=creator))
-    error = "Unable to add. "
+        else:
+            checkuser = 'SELECT * FROM Person WHERE username = %s'
+            cursor.execute(checkuser,friend_name)
+            datau = cursor.fetchall()
+            if not datau:
+                error = "This user is not found. "
+            else:
+                #dup check
+                checkmembership = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
+                cursor.execute(checkmembership,(friend_name,group,user))
+                datam = cursor.fetchall()
+                if(datam):
+                    error = "This friend is already in your group. "
+                else:
+                    query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
+                    cursor.execute(query,(group,user,friend_name))
+                    conn.commit()
+                    cursor.close()
+    else:
+        error = "Unable to add. "
     return redirect(url_for('groupDetail',group=group, creator=creator, error=error))
 
 '''
@@ -421,15 +415,19 @@ def search_blogger():
 def show_posts(poster):
     user = session['username']
     cursor = conn.cursor()
+    '''
     cleanup = 'DROP VIEW visiblePhoto'
-    view = 'CREATE VIEW visiblePhoto AS SELECT pID, poster,postingDate FROM Photo (pID IN SELECT pID FROM SharedWith WHERE groupName IN (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s)) ORDER BY postingDate DESC'
+    view = 'CREATE VIEW visiblePhoto AS (SELECT pID, poster,postingDate FROM Photo WHERE pID IN (SELECT pID FROM SharedWith WHERE groupName IN (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s)) ORDER BY postingDate DESC)'
     query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
     cursor.execute(view,(user,user))
     cursor.execute(query, poster)
+    '''
+    query='SELECT * FROM Photo JOIN Person ON (poster=username) WHERE pID IN (SELECT pID FROM Photo AS p JOIN Follow ON (poster = followee) WHERE follower = %s AND followStatus = 1 AND (allFollowers = 1 OR %s IN (SELECT username FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE pID = p.pID))) ORDER BY postingDate DESC'
+    cursor.execute(query,(poster,user))
     data = cursor.fetchall()
-    cursor.execute(cleanup)
+    #cursor.execute(cleanup)
     cursor.close()
-    return render_template('show_posts.html', posts=data)
+    return render_template('show_posts.html', posts=data, poster_name = poster)
 
 @app.route('/logout')
 def logout():
