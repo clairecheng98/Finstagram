@@ -422,12 +422,12 @@ def show_posts(poster):
     user = session['username']
     cursor = conn.cursor()
     cleanup = 'DROP VIEW visiblePhoto'
-    cursor.execute(cleanup)
-    view = 'CREATE VIEW visiblePhoto AS SELECT pID, poster,postingDate FROM Photo WHERE allFollowers= 1 OR (pID in SELECT pID FROM SharedWith WHERE groupName in (SELECT groupName FROM BelongTo (WHERE username = %s OR groupCreator = %s))) ORDER BY postingDate DESC'
+    view = 'CREATE VIEW visiblePhoto AS SELECT pID, poster,postingDate FROM Photo (pID in SELECT pID FROM SharedWith WHERE groupName in (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s)) ORDER BY postingDate DESC'
     query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
     cursor.execute(view,(user,user))
     cursor.execute(query, poster)
     data = cursor.fetchall()
+    cursor.execute(cleanup)
     cursor.close()
     return render_template('show_posts.html', posts=data)
 
