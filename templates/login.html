@@ -1,17 +1,101 @@
 <html>
+<style media="screen">
+	* {
+		display: border-box;
+	}
+
+	body,
+	html {
+		margin: 0px;
+		padding: 0px;
+		font-family: sans-serif;
+	}
+
+	.mainContainer{
+		height: 100vh;
+		background-position: center;
+		background-image: url("https://www.photohdx.com/images/2016/11/clean-white-grey-paper-backdrop.jpg");
+		background-position:center;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+
+
+	.mainContainer div{
+		display: flex;
+		justify-content: center;
+	}
+
+.header{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 45vh;
+}
+	h1{
+		font-family: 'Dancing Script', cursive;
+		font-size:5rem;
+	}
+
+	a{
+		padding: 1vmin;
+		font-size: 20px;
+		position: relative;
+		color:black;
+		text-decoration: none;
+	}
+
+	a:hover{
+		font-size: 25px;
+	}
+
+	input{
+		font-size: 26px;
+		margin-bottom: 10px;
+	}
+
+	input[type=submit] {
+    margin-left: 90px;
+    cursor:pointer;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+	.footer{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding-top: 20vh;
+	}
+	</style>
 <head>
+	<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
 </head>
 <body>
-<form action="/loginAuth" method="POST">
-	<input type="text" name = "username" placeholder="username" required/> </br>
-	<input type="password" name = "password" placeholder="password" required/> </br>
-	<input type="submit" value = Login />
-	{% if error %}
-		<p class="error"><strong>Error:</strong> {{error}}</p>
-	{% endif %}
-</form>
+	<div class="mainContainer">
+		<div class="header">
+			<h1>Finstagram</h1>
+		</div>
+		<div class="login">
+			<form action="/loginAuth" method="POST">
+				<input type="text" name = "username" placeholder="username" required/> </br>
+				<input type="password" name = "password" placeholder="password" required/> </br>
+				<input type="submit" value = Login />
+				{% if error %}
+					<p class="error"><strong>Error:</strong> {{error}}</p>
+				{% endif %}
+			</form>
+		</div>
+		<div>
+			<a href="/">Go back</a>
+		</div>
+		<div class="footer">
+			<p>@ 2020 by Claire Cheng and Michael Zhao</p>
+		</div>
 
-<a href="/">Go back</a>
+	</div>
+
 
 </body>
 
