@@ -19,9 +19,13 @@
 {% else %}
 {% if followPending %}
 <p> Your Follow Request to {{poster_name}} is Pending. </p>
+<form action="/unfollow_poster/{{poster_name}}" method="POST">
+    <input type="submit" value = "Cancel Request" />
+</form>
 {% else %}
 <p> Here are posts by {{poster_name}}: </p>
-
+<form action="/unfollow_poster/{{poster_name}}" method="POST">
+<input type="submit" value = "Unfollow" />
 
 <table>
 	<th>Time</th>

@@ -458,6 +458,35 @@ def follow_poster(poster):
     conn.commit()
     cursor.close()
     return redirect(url_for('show_posts', poster=poster))
+    
+    
+'''
+FEATURE 8: UNFOLLOW
+YOU NEED TO ENTER TARGET'S PAGE TO UNFOLLOW
+'''
+@app.route('/unfollow_poster/<poster>', methods=['GET', 'POST'])
+def unfollow_poster(poster):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    user=session['username']
+    if(poster == user):
+        return redirect(url_for('profile'))
+    cursor=conn.cursor()
+    remove_follow='DELETE FROM Follow WHERE follower = %s AND followee = %s'
+    cursor.execute(remove_follow, (user,poster))
+    conn.commit()
+    tag_check='SELECT pID FROM Photo JOIN Tag USING (pID) WHERE username = %s AND poster = %s AND NOT EXISTS (SELECT * FROM BelongTo AS p1 JOIN BelongTo AS p2 USING (groupName, groupCreator) WHERE p1.username = %s AND p2.username = %s)'
+    cursor.execute(tag_check, (user, poster, user, poster))
+    res = cursor.fetchall()
+    print(res)
+    for pics in res:
+        print(str(pics['pID']))
+        remove_tag='DELETE FROM Tag WHERE pID = %s AND username = %s'
+        cursor.execute(remove_tag, (str(pics['pID']), user))
+        conn.commit()
+    cursor.close()
+    return redirect(url_for('show_posts', poster=poster))
+
 
 
 @app.route('/logout')
