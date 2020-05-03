@@ -397,8 +397,10 @@ def select_blogger():
     if 'username' not in session:
         return redirect(url_for('login'))
     cursor = conn.cursor()
-    query = 'SELECT DISTINCT username FROM blog'
-    cursor.execute(query)
+    user = session['username']
+    name_input = request.form['username']
+    query = 'SELECT DISTINCT username FROM Person WHERE username LIKE %s'
+    cursor.execute(query,name_input)
     data = cursor.fetchall()
     cursor.close()
     return render_template('select_blogger.html', user_list=data)
@@ -407,9 +409,9 @@ def select_blogger():
 
 @app.route('/show_posts/<poster>', methods=["GET", "POST"])
 def show_posts(poster):
-    #poster = request.args['poster']
+    poster = request.args['poster']
     cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
+    query = 'SELECT pID, filePath FROM Photo WHERE pID in (SELECT pID FROM SharedWith WHERE groupName in (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator=%s)) ORDER BY postingDate DESC'
     cursor.execute(query, poster)
     data = cursor.fetchall()
     cursor.close()
