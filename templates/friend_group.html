@@ -5,19 +5,6 @@
     <title>Manage Your Friend Groups</title>
   </head>
   <body>
-    <div class="group_you_created">
-        <h3>Friend Groups You Created</h3>
-        <table>
-          <th>Group Name</th>
-          <th>Description</th>
-          {% for line in fgscreated %}
-          <tr>
-            <td><a href="/groupDetail/{{line.groupCreator}}/{{line.groupName}}">{{line.groupName}}</a></td>
-            <td>{{line.description}}<td>
-          </tr>
-          {% endfor %}
-        </table>
-    </div>
     
     <div class="group_you_in">
       <h3>Friend Groups You Are In</h3>
@@ -25,7 +12,7 @@
         <th>Group Name</th>
         <th>Created By</th>
         <th>Description</th>
-        {% for line in fgsin %}
+        {% for line in fgs %}
         <tr>
           <td><a href="/groupDetail/{{line.groupCreator}}/{{line.groupName}}">{{line.groupName}}</a></td>
           <td>{{line.groupCreator}}</td>

@@ -221,17 +221,19 @@ def friend_group():
         return redirect(url_for('login'))
     user = session['username']
     cursor = conn.cursor()
+    '''
     query_c = 'SELECT * FROM FriendGroup WHERE groupCreator = %s'
     cursor.execute(query_c, (user))
     fgs_c_data = cursor.fetchall()
-    query_i = 'SELECT groupName, groupCreator, description FROM BelongTo JOIN FriendGroup USING(groupName,groupCreator) WHERE username = %s'
+    '''
+    query_in = 'SELECT groupName, groupCreator, description FROM BelongTo JOIN FriendGroup USING(groupName,groupCreator) WHERE username = %s'
     cursor.execute(query_i, (user))
-    fgs_i_data = cursor.fetchall()
+    fgs_data = cursor.fetchall()
     query_pull = 'SELECT * FROM Follow WHERE followee = %s AND followStatus = 1' #SET AS 1 FOR NOW
     cursor.execute(query_pull, (user))
     followers_data = cursor.fetchall()
     cursor.close()
-    return render_template('friend_group.html', fgscreated=fgs_c_data, fgsin=fgs_i_data, followers = followers_data, error=request.args.get('error'))
+    return render_template('friend_group.html', fgs=fgs_data, followers = followers_data, error=request.args.get('error'))
 
 
 @app.route('/add_friend_group',methods=['GET','POST'])
@@ -253,6 +255,7 @@ def add_friend_group():
     query = 'INSERT INTO FriendGroup (groupName,groupCreator,description) VALUES(%s,%s,%s)'
     cursor.execute(query,(group_name,user,description))
     add_member = request.form.getlist('add_members_at_creation')
+    add_member.append(user)
     print(add_member)
     for person in add_member:
         query_push = 'INSERT INTO BelongTo (username, groupName, groupCreator) VALUES (%s, %s, %s)'
@@ -291,26 +294,23 @@ def add_friend(creator,group):
     error = None
     if(creator == user): #check if creator is managing friends
         cursor = conn.cursor()
-        if(user == friend_name):
-            error = "Cannot add group creator again. "
+        checkuser = 'SELECT * FROM Person WHERE username = %s'
+        cursor.execute(checkuser,friend_name)
+        datau = cursor.fetchall()
+        if not datau:
+            error = "This user is not found. "
         else:
-            checkuser = 'SELECT * FROM Person WHERE username = %s'
-            cursor.execute(checkuser,friend_name)
-            datau = cursor.fetchall()
-            if not datau:
-                error = "This user is not found. "
+            #dup check
+            checkmembership = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
+            cursor.execute(checkmembership,(friend_name,group,user))
+            datam = cursor.fetchall()
+            if(datam):
+                error = "This friend is already in your group. "
             else:
-                #dup check
-                checkmembership = 'SELECT * FROM BelongTo WHERE username = %s AND groupName = %s AND groupCreator = %s'
-                cursor.execute(checkmembership,(friend_name,group,user))
-                datam = cursor.fetchall()
-                if(datam):
-                    error = "This friend is already in your group. "
-                else:
-                    query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
-                    cursor.execute(query,(group,user,friend_name))
-                    conn.commit()
-                    cursor.close()
+                query = 'INSERT INTO BelongTo (groupName,groupCreator,username) VALUES(%s,%s,%s)'
+                cursor.execute(query,(group,user,friend_name))
+                conn.commit()
+                cursor.close()
     else:
         error = "Unable to add. "
     return redirect(url_for('groupDetail',group=group, creator=creator, error=error))
