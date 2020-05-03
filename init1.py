@@ -389,26 +389,35 @@ def decline_follow(follower):
 FEATURE 10: SEARCH BY POSTER
 '''
 
-@app.route('/select_blogger')
+@app.route('/select_blogger', methods=['GET', 'POST'])
 def select_blogger():
     #check that user is logged in
     #username = session['username']
     #should throw exception if username not found
     if 'username' not in session:
         return redirect(url_for('login'))
-    cursor = conn.cursor()
+    return render_template('select_blogger.html')
+    
+    
+@app.route('/search_blogger', methods=['GET', 'POST'])
+def search_blogger():
+    if 'username' not in session:
+        return redirect(url_for('login'))
     user = session['username']
     name_input = request.form['username']
+    cursor = conn.cursor()
     searchRes = name_input + '%'
-    query = 'SELECT DISTINCT username FROM Person WHERE searchRes LIKE %s'
-    cursor.execute(query,name_input)
+    print(searchRes)
+    query = 'SELECT DISTINCT username FROM Person WHERE username LIKE (%s)'
+    cursor.execute(query,searchRes)
     data = cursor.fetchall()
+    conn.commit()
     cursor.close()
     return render_template('select_blogger.html', user_list=data)
 
 
 
-@app.route('/show_posts/<poster>', methods=["GET", "POST"])
+@app.route('/show_posts/<poster>', methods=['GET', 'POST'])
 def show_posts(poster):
     poster = request.args['poster']
     cursor = conn.cursor();
