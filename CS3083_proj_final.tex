@@ -1,0 +1,105 @@
+\documentclass[12pt]{article}
+
+\usepackage[tmargin=1in,bmargin = 1in,lmargin = 0.75in]{geometry}
+\usepackage{times} 
+\usepackage{enumitem} 
+\usepackage[protrusion=true,expansion=true]{microtype}
+\usepackage{graphicx}%%%%%%%%
+\newcommand\itemgraphics[2][]{%
+    \hfill\raisebox{\dimexpr-\height+\baselineskip}{\includegraphics[#1]{#2}}\hfill~}
+
+\usepackage[T1]{fontenc} 
+%\usepackage{txfonts}
+\usepackage{mathptmx} %Applies for Math and Times font
+\usepackage{setspace}
+\renewcommand{\baselinestretch}{1.0} 
+\usepackage{amsmath} %cannot be used with txfonts
+\usepackage{multicol} 
+\usepackage[document]{ragged2e}
+\setlength\parindent{0.5in}
+\usepackage{tikz}
+\usetikzlibrary{datavisualization}
+\usetikzlibrary{datavisualization.formats.functions}
+\usetikzlibrary{calc,positioning} 
+\usetikzlibrary{matrix}
+\usepackage{mathtools}
+\unitlength = 1mm
+\newenvironment{bmatrixcolor}[1][red]
+  {\colorlet{savethecolor}{.}\colorlet{bracecolor}{#1}%
+    \color{bracecolor}\left[\color{savethecolor}\begin{matrix}}
+  {\end{matrix}\color{bracecolor}\right]}
+\newcommand\m[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand\mb[1]{\begin{bmatrixcolor}[white]#1\end{bmatrixcolor}}
+\newcommand\dtm[1]{\left|\begin{bmatrixcolor}[white]#1\end{bmatrixcolor}\right|}
+\newcommand\case[1]{\begin{cases}#1\end{cases}}
+\newcommand\ctt[1]{\textcircled{\tiny #1}}
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand\nbe{N_{\epsilon}}
+\usepackage{bbm}
+\newcommand{\mathbb}[1]{\mathbbm{#1}}
+\newcommand{\re}[1]{\text{Re}\left(#1\right)}
+\newcommand{\im}[1]{\text{Im}\left(#1\right)}
+\newcommand{\Arg}[1]{\text{Arg}\left(#1\right)}
+\newcommand{\qed}{\ensuremath{\blacksquare}}
+\renewcommand{\aa}[1]{\begin{align*}#1\end{align*}}
+\newcommand{\be}{\begin{equation*}}
+\newcommand{\ee}{\end{equation*}}
+\renewcommand{\d}{\displaystyle}
+
+\usepackage{color}
+
+\definecolor{pblue}{rgb}{0.13,0.13,1}
+\definecolor{pgreen}{rgb}{0,0.5,0}
+\definecolor{pred}{rgb}{0.9,0,0}
+\definecolor{pgrey}{rgb}{0.46,0.45,0.48}
+
+\usepackage{listings}
+\lstset{language=SQL, showspaces=false, showtabs=false, breaklines=true, showstringspaces=false, breakatwhitespace=true, commentstyle=\color{pgreen}, keywordstyle=\color{pblue}, stringstyle=\color{pred}, basicstyle=\ttfamily, moredelim=[il][\textcolor{pgrey}]{$$}, moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}, tabsize=3, frame=single}
+
+\graphicspath{ {./hw6src/} }%%%%%%%%Img Path
+
+\begin{document} 
+\setlength\parindent{0.1cm}
+\begin{minipage}[b]{3.75in}
+\begin{flushleft}
+CS3083 Database\\ \textbf{Project Part 4} \\ \textit{5/3/2020} 
+\end{flushleft}
+\end{minipage}
+\fbox{\begin{minipage}[b]{2.5in} Claire Cheng, Michael (Zixi) Zhao\\ yc3093\hspace{35pt}zz1818 \\ Prof. Frankl \end{minipage}} %Name Box
+
+
+\noindent \rule[1.6ex]{\linewidth}{0.6pt} 
+
+\setlength\parindent{15pt}
+\setstretch{1.2}
+
+\begin{enumerate}[label=\textbf{\arabic*.}, leftmargin=*]
+%%%%%%%%
+\item GitHub repo: \lstinline{https://github.com/clairecheng98/Finstagram.git}\\\vspace{10pt}
+\item In this project, Claire Cheng was responsible for Extra Feature \textbf{9} (search by tag), and Feature \textbf{10} (search by post), Michael Zhao was responsible for Extra Feature \textbf{11} (add a friend), and Feature \textbf{8} (unfollow). \\\vspace{5pt}
+For feature 8, the unfollow function needs to handle not only between followers and followees, and also tags. Photos posted by followee that the follower was tagged in are no more visible to the follower, thus the tags shall be removed. However, there's an exception that if these two people are in the same FriendGroup, and the photo was shared in that FriendGroup, then the tags could be kept since the photo is still visible after unfollowing. The SQL query first finds if the follower was tagged in any followee's photo in \lstinline{Follow} table, then checks if that photo has been shared to a FriendGroup that both follower and followee are in. If there exists such photo, then the tag of follower in the photo shall be deleted. (NOTE: This paragraph is to fulfill the requirement of summary of deletion handling, full implementation was coded in the python file.)\\\vspace{5pt}
+CONCEPTS for FEATURE 9 SEARCH BY TAG: \\
+Like Feature 10, there will be a search page, where the user will need to log in, and will be asked to provide the username of whom being tagged. All the results will be displayed with the query:
+\begin{lstlisting}
+    query = 'SELECT DISTINCT username FROM Person WHERE username LIKE (%s)'
+    cursor.execute(query,input)
+\end{lstlisting}
+Then by clicking the href the user will land in the search page \lstinline{/show_posts_of_tag/<tagged_name>}. And the result will be presented with the following query:
+\begin{lstlisting}
+    view = 'CREATE VIEW visiblePhoto AS(SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'
+    query='SELECT pID FROM visiblePhoto JOIN Tag USING pID WHERE username=%s AND tagStatus=1'
+    cursor.execute(view,(user,user,user))
+    cursor.execute(query, tagged_name)
+\end{lstlisting}
+Finstagram will return the \lstinline{pID} of the photos that the tagged user is being tagged in.\\
+\vspace{10pt}
+\item We used \lstinline{python/Flask}. \\\vspace{10pt}
+\item Some additional comments: 
+\begin{enumerate}
+\item We inserted original passwords in hashed format into the Database 
+\item We stored the pictures (in \lstinline{filePath}) using \lstinline{LONGBLOB} datatype, thus the pictures themselves can be retrieved online at anytime, but the insert statement with only file name will not work. We manually updated \lstinline{filePath} on MAMP database stored as \lstinline{LONGBLOB}. 
+\end{enumerate}
+
+\end{enumerate}
+
+\end{document} 
