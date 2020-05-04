@@ -466,13 +466,16 @@ def follow_poster(poster):
     
 '''
 CONCEPTS for FEATURE 9 SEARCH BY TAG
-The user will need to log in, and will be asked to provide the username of whom being tagged.
+Like Feature 10, there will be a search page, where the user will need to log in, and will be asked to provide the username of whom being tagged. All the results will be displayed with the query:
+    query = 'SELECT DISTINCT username FROM Person WHERE username LIKE (%s)'
+    cursor.execute(query,input)
+
+Then by clicking the href the user will land in the search page(/show_posts_of_tag/<tagged_name>). And the result will be presented with the following query:
     view = 'CREATE VIEW visiblePhoto AS(SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'
     query='SELECT pID FROM visiblePhoto JOIN Tag USING pID WHERE username=%s AND tagStatus=1'
     cursor.execute(view,(user,user,user))
     cursor.execute(query, tagged_name)
 Finstagram will return the pID of the photos that the tagged user is being tagged in.
-    
 '''
 
 '''
@@ -490,7 +493,7 @@ def unfollow_poster(poster):
     remove_follow='DELETE FROM Follow WHERE follower = %s AND followee = %s'
     cursor.execute(remove_follow, (user,poster))
     conn.commit()
-    tag_check='SELECT pID FROM Photo JOIN Tag USING (pID) WHERE (username = %s AND poster = %s) AND NOT EXISTS (SELECT * FROM BelongTo AS p1 JOIN BelongTo AS p2 USING (groupName, groupCreator) WHERE p1.username = %s AND p2.username = %s)'
+    tag_check='SELECT pID FROM Photo JOIN Tag USING (pID) WHERE (username = %s AND poster = %s) AND pID NOT IN (SELECT pID FROM Photo JOIN SharedWith USING (pID) JOIN BelongTo USING (groupName, groupCreator) WHERE username = %s AND poster = %s)'
     cursor.execute(tag_check, (user, poster, user, poster))
     res = cursor.fetchall()
     print(res)
