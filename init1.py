@@ -403,6 +403,7 @@ def select_blogger():
 def search_blogger():
     if 'username' not in session:
         return redirect(url_for('login'))
+    error=None
     user = session['username']
     name_input = request.form['username']
     cursor = conn.cursor()
