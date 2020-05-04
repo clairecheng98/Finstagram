@@ -193,7 +193,7 @@ def photoDetail():
     data_check = cursor.fetchone() #dictcursor. fetchall returns list of dicts
     print(data_check)
     #PREVENT pID HIJACKING
-    if(str(data_check['pID']) == photo):
+    if(data_check):
         query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
         cursor.execute(query1, (photo))
         data1 = cursor.fetchall()
@@ -356,7 +356,7 @@ def add_follow():
     try:
         query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
         cursor = conn.cursor()
-        cursor.execute(query,(follow_name,user,follow_status))
+        cursor.execute(query,(user,follow_name,follow_status))
     except pymysql.Error:
         return redirect(url_for('manage_follow'))
     conn.commit()

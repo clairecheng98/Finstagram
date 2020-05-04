@@ -33,7 +33,7 @@
         {% for line in photos %}
         Showing photo: {{line.pID}}
         <a href="{{url_for('photoDetail', pID=line.pID)}}">
-          <img img src="./static/user_uploads/{{line.pID}}" />
+          <img src="./static/user_uploads/{{line.pID}}" />
         </a>
         <br>
         <p> Posted by {{line.poster}} on {{line.postingDate}}</p>
