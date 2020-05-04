@@ -58,7 +58,7 @@ a:hover{
     </div>
 
     <div class="following">
-      <h3>People who are following you:</h3>
+      <h3>People you are following:</h3>
       <table>
         {% for line in followers %}
         <p>{{line.follower}}</p>
@@ -67,7 +67,7 @@ a:hover{
     </div>
 
     <div class="followers">
-      <h3>People you are following:</h3>
+      <h3>People who are following you:</h3>
       <table>
         {% for line in followees %}
         <p>{{line.followee}}</p>

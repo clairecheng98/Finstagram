@@ -348,9 +348,12 @@ def add_follow():
     user = session['username']
     follow_name = request.form['username']
     follow_status = 0
-    query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
-    cursor = conn.cursor()
-    cursor.execute(query,(follow_name,user,follow_status))
+    try:
+        query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
+        cursor = conn.cursor()
+        cursor.execute(query,(follow_name,user,follow_status))
+    except pymysql.Error:
+        return redirect(url_for('manage_follow'))
     conn.commit()
     cursor.close()
     return redirect(url_for('manage_follow'))
