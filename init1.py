@@ -347,7 +347,7 @@ def add_follow():
         return redirect(url_for('login'))
     user = session['username']
     follow_name = request.form['username']
-    if(user == poster):
+    if(user == follow_name):
         return redirect(url_for('manage_follow'))
     follow_status = 0
     try:
@@ -411,9 +411,11 @@ def search_blogger():
     query = 'SELECT DISTINCT username FROM Person WHERE username LIKE (%s)'
     cursor.execute(query,searchRes)
     data = cursor.fetchall()
+    if not data:
+        error = "Cannot find any user with your input."
     conn.commit()
     cursor.close()
-    return render_template('select_blogger.html', user_list=data)
+    return render_template('select_blogger.html', user_list=data, error=error)
 
 
 
