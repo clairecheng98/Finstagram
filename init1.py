@@ -197,7 +197,11 @@ def photoDetail():
         query1 = 'SELECT * FROM Photo JOIN Person ON (username = poster) WHERE pID = %s'
         cursor.execute(query1, (photo))
         data1 = cursor.fetchall()
-        if(data1): disp_image(data1)
+        print(data1)
+        if(data1):
+            if data1[0]['caption'] is None:
+                data1[0]['caption'] = ""
+            disp_image(data1)
         query2 = 'SELECT * FROM Tag JOIN Person USING (username) WHERE (pID = %s AND tagStatus = 1)'
         cursor.execute(query2, (photo))
         data2 = cursor.fetchall()
