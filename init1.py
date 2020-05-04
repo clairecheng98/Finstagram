@@ -431,10 +431,8 @@ def show_posts(poster):
     elif (fc['followStatus'] == 0):
         followPending = True
     '''
-    cleanup = 'DROP VIEW visiblePhoto'
-    view = 'CREATE VIEW visiblePhoto AS (SELECT pID, poster,postingDate FROM Photo WHERE pID IN (SELECT pID FROM SharedWith WHERE groupName IN (SELECT groupName FROM BelongTo WHERE username = %s OR groupCreator = %s)) ORDER BY postingDate DESC)'
-    query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
-    cursor.execute(view,(user,user))
+    view = 'CREATE VIEW visiblePhoto AS(SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'    query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
+    cursor.execute(view,(user,user,user))
     cursor.execute(query, poster)
     '''
     query='SELECT * FROM (SELECT * FROM Photo AS p JOIN Follow ON (poster = followee) WHERE follower = %s AND followStatus = 1 AND (allFollowers = 1 OR %s IN (SELECT username FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE pID = p.pID))) AS visiblePhoto WHERE poster = %s ORDER BY postingDate DESC'
@@ -460,7 +458,17 @@ def follow_poster(poster):
     cursor.close()
     return redirect(url_for('show_posts', poster=poster))
     
+'''
+CONCEPTS for FEATURE 9 SEARCH BY TAG
+The user will need to log in, and will be asked to provide the username of whom being tagged.
+    view = 'CREATE VIEW visiblePhoto AS(SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'
+    query='SELECT pID FROM visiblePhoto JOIN Tag USING pID WHERE username=%s AND tagStatus=1'
+    cursor.execute(view,(user,user,user))
+    cursor.execute(query, tagged_name)
+Finstagram will return the pID of the photos that the tagged user is being tagged in.
     
+'''
+
 '''
 FEATURE 8: UNFOLLOW
 YOU NEED TO ENTER TARGET'S PAGE TO UNFOLLOW

@@ -1,14 +1,63 @@
 <html>
-<head>
-</head>
-<body>
-	<h1>Welcome {{username}}</h1>
+<style media="screen">
+*{
+	display: border-box;
+	font-family: sans-serif;
+
+	/* border: 1px solid black */
+}
+h1{
+ font-family: 'Dancing Script', cursive;
+}
+.navbar{
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+}
+.footer{
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding-top: 20vh;
+}
+a{
+	padding: 1vmin;
+	font-size: 20px;
+	position: relative;
+	color:#00008B;
+	text-decoration: none;
+	text-decoration: underline;
+}
+
+a:hover{
+	background-color: black;
+	color: white;
+}
+
+</style>
+<div class="navbar">
+	<a href="/home">Home</a>
+	<a href="/profile">Profile</a>
+	<a href="/select_blogger">Select A Blogger</a>
+	<a href="/manage_follow">Manage Follows</a>
+	<a href="/friend_group">Manage your Friend Group</a>
+	<a href="/logout">Logout</a>
+</div>
+
+<h1>Welcome {{username}}</h1>
 
 <style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
+table, th, td{
+	border: 1px solid black;
+}
 </style>
+<head>
+	<title>Home</title>
+	<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
 
 <h2>News Feed:</h2>
 
@@ -28,11 +77,9 @@
 <img src="./static/user_uploads/{{line.pID}}" /></br>
 {% endfor %}
 
-<a href="/profile">Share your own</a>
-<a href="/select_blogger">Select a blogger</a>
-<br>
-<a href="/logout">Logout</a>
-
+<div class="footer">
+	<p>@ 2020 by Claire Cheng and Michael Zhao</p>
+</div>
 </body>
 
 

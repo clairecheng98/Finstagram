@@ -1,11 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+<style>
+*{
+  display: border-box;
+  /* border: 1px solid black */
+  font-family: sans-serif;
+}
+
+.navbar{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+.footer{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 20vh;
+}
+a{
+  padding: 1vmin;
+  font-size: 20px;
+  position: relative;
+  color:#00008B;
+  text-decoration: none;
+  text-decoration: underline;
+}
+
+a:hover{
+  background-color: black;
+  color: white;
+}
+
+</style>
   <head>
     <meta charset="utf-8">
     <title>Manage Your Friend Groups</title>
   </head>
   <body>
-    
+
+    <div class="navbar">
+      <a href="/home">Home</a>
+      <a href="/profile">Profile</a>
+      <a href="/select_blogger">Select A Blogger</a>
+      <a href="/manage_follow">Manage Follows</a>
+      <a href="/friend_group">Manage your Friend Group</a>
+      <a href="/logout">Logout</a>
+    </div>
+
     <div class="group_you_in">
       <h3>Friend Groups You Are In</h3>
       <table>
@@ -21,7 +63,7 @@
         {% endfor %}
       </table>
     </div>
-    
+
     <div class="create_group">
       <form action="/add_friend_group" method="post">
         <h3>Create a Friend Group</h3>
@@ -37,6 +79,9 @@
           <p class="error"><strong>Error:</strong> {{error}}</p>
       {% endif %}
     </div>
-    <a href="/profile">Return to Profile</a>
+
+    <div class="footer">
+      <p>@ 2020 by Claire Cheng and Michael Zhao</p>
+    </div>
   </body>
 </html>

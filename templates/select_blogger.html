@@ -1,10 +1,54 @@
 <html>
-<head>
-</head>
-<body>
 
+	<style media="screen">
+	*{
+		display: border-box;
+		/* border: 1px solid black */
+		font-family: sans-serif;
 
+	}
+	h1{
+	 font-family: 'Dancing Script', cursive;
+	}
+	.navbar{
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+	}
+	.footer{
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+		padding-top: 20vh;
+	}
+	a{
+		padding: 1vmin;
+		font-size: 20px;
+		position: relative;
+		color:#00008B;
+		text-decoration: none;
+		text-decoration: underline;
+	}
 
+	a:hover{
+		background-color: black;
+		color: white;
+	}
+
+	</style>
+	<head>
+		<title>Search by Poster</title>
+	</head>
+	<body>
+	<div class="navbar">
+		<a href="/home">Home</a>
+		<a href="/profile">Profile</a>
+		<a href="/select_blogger">Select A Blogger</a>
+		<a href="/manage_follow">Manage Follows</a>
+		<a href="/friend_group">Manage your Friend Group</a>
+		<br>
+		<a href="/logout">Logout</a>
+	</div>
 
 <form action="/search_blogger" method="post">
 	<h3>Whose posts would you like to see?</h3>
@@ -23,9 +67,10 @@
 
 </form>
 
+<div class="footer">
+	<p>@ 2020 by Claire Cheng and Michael Zhao</p>
+</div>
 
-
-<a href="/logout">Logout</a>
 
 </body>
 

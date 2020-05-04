@@ -1,8 +1,33 @@
 <!DOCTYPE html>
 <html>
+<style media="screen">
+*{      font-family: sans-serif;
+}
+.footer{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 20vh;
+}
+a{
+  padding: 1vmin;
+  font-size: 20px;
+  position: relative;
+  color:#00008B;
+  text-decoration: none;
+  text-decoration: underline;
+}
+
+a:hover{
+  background-color: black;
+  color: white;
+}
+</style>
   <head>
+    <title>Photo Details</title>
   </head>
   <body>
+
     {% if error %}
         <p class="error"><strong>Error:</strong> {{error}}</p>
     {% else %}
@@ -19,7 +44,7 @@
         <p>{{thisPic.caption}}</p></br>
         <p>Posted on {{thisPic.postingDate}}</p></br>
         {% endfor %}
-        
+
         <p> People Tagged in this photo: </p></br>
         <table>
           <th>username</th>
@@ -34,7 +59,7 @@
             </tr>
           {% endfor %}
         </table>
-        
+
         <p> Reactions: </p></br>
         <table>
           <th>username</th>
@@ -50,6 +75,10 @@
           {% endfor %}
         </table>
     {% endif %}
+
     <a href="/profile">Return to Profile</a>
+    <div class="footer">
+      <p>@ 2020 by Claire Cheng and Michael Zhao</p>
+    </div>
   </body>
 </html>
