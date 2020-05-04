@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+      <meta charset="utf-8">
+      <title>Friend Group {{gn}} created by {{gc}}</title>
+  </head>
+  <body>
+    
+    <div class="members">
+        <h3>Members in the group</h3>
+          {% for line in members %}
+          <p>{{line.username}}</p>
+          {% endfor %}
+    </div>
+    
+    {% if sess %}
+    <div class="add_friend">
+      <form action="/add_friend/{{gc}}/{{gn}}" method="post">
+        <h3>Add a friend into this group</h3>
+        <input type="text" name = "friend_name" placeholder="Enter a username" required/> </br>
+        <input type="submit" value = "Add" />
+      </form>
+      {% if error %}
+          <p class="error"><strong>Error:</strong> {{error}}</p>
+      {% endif %}
+    </div>
+    {% endif %}
+    
+    <a href="/friend_group">Return to Select Friend Group</a>
+    
+    <div>
+        <h3>Pictures shared in the group</h3>
+        {% for line in photos %}
+        Showing photo: {{line.pID}}
+        <a href="{{url_for('photoDetail', pID=line.pID)}}">
+          <img img src="./static/user_uploads/{{line.pID}}" />
+        </a>
+        <br>
+        <p> Posted by {{line.poster}} on {{line.postingDate}}</p>
+        {% endfor %}
+    </div>
+  </body>
+</html>

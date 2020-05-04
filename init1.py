@@ -433,11 +433,6 @@ def show_posts(poster):
         notfollowed = True
     elif (fc['followStatus'] == 0):
         followPending = True
-    '''
-    view = 'CREATE VIEW visiblePhoto AS(SELECT postingDate, pID, filePath FROM Photo WHERE poster = %s OR poster IN (SELECT followee FROM Follow WHERE follower = %s AND followStatus = 1) OR pID IN (SELECT pID FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE username = %s) ORDER BY postingDate DESC'    query = 'SELECT * FROM visiblePhoto WHERE poster=%s'
-    cursor.execute(view,(user,user,user))
-    cursor.execute(query, poster)
-    '''
     query='SELECT * FROM (SELECT * FROM Photo AS p JOIN Follow ON (poster = followee) WHERE follower = %s AND followStatus = 1 AND (allFollowers = 1 OR %s IN (SELECT username FROM BelongTo JOIN SharedWith USING (groupName, groupCreator) WHERE pID = p.pID))) AS visiblePhoto WHERE poster = %s ORDER BY postingDate DESC'
     cursor.execute(query,(user,user,poster))
     data = cursor.fetchall()

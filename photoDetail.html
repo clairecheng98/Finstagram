@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+  <body>
+    <style type="text/css">
+    	table, th, td{
+    		border: 1px solid black;
+    	}
+    </style>
+    
+    {% for thisPic in photoDet %}
+    {{thisPic.pID}}</br>
+    <p>Photo Path: </p></br>
+    <img src="/static/user_uploads/{{thisPic.pID}}" />
+    <p>Posted By {{thisPic.poster}}, {{thisPic.firstName}} {{thisPic.lastName}}</p></br>
+    <p>{{thisPic.caption}}</p></br>
+    <p>Posted on {{thisPic.postingDate}}</p></br>
+    {% endfor %}
+    
+    <p> People Tagged in this photo: </p></br>
+    <table>
+      <th>username</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+
+      {% for tag in tagged %}
+      <tr>
+        <td>{{tag.username}}</td>
+        <td>{{tag.firstName}}</td>
+        <td>{{tag.lastName}}</td>
+      	</tr>
+      {% endfor %}
+    </table>
+    
+    <p> Reactions: </p></br>
+    <table>
+      <th>username</th>
+      <th>Reaction</th>
+      <th>Comment</th>
+
+      {% for item in react %}
+      <tr>
+        <td>{{item.username}}</td>
+        <td>{{item.emoji}}</td>
+        <td>{{item.comment}}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>
