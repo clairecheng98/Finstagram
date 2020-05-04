@@ -67,8 +67,8 @@ a:hover{
     <div class="create_group">
       <form action="/add_friend_group" method="post">
         <h3>Create a Friend Group</h3>
-        <input type="text" name = "group_name" placeholder="Enter a group name" required/> </br>
-        <input type="text" name = "description" placeholder="Enter a description for your group" /> </br>
+        <input type="text" pattern="[^+]+" name="group_name" placeholder="Enter a group name" required/> </br>
+        <input type="text" name="description" placeholder="Enter a description for your group" /> </br>
         <p>Select friend(s) you would like to add to your friend group:</p></br>
         {% for line in followers %}
             <input type="checkbox" name="add_members_at_creation" value="{{line.follower}}"> {{line.follower}}</input></br>

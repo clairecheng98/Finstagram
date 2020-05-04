@@ -55,6 +55,9 @@ a:hover{
         <br/>
         <p><input type="submit" value="Send A Request"> </p>
       </form>
+      {% if msg %}
+          <p class="error">{{msg}}</p>
+      {% endif %}
     </div>
 
     <div class="following">
