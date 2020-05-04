@@ -347,6 +347,8 @@ def add_follow():
         return redirect(url_for('login'))
     user = session['username']
     follow_name = request.form['username']
+    if(user == poster):
+        return redirect(url_for('manage_follow'))
     follow_status = 0
     try:
         query = 'INSERT INTO Follow(follower,followee,followStatus) VALUES (%s,%s,%s)'
