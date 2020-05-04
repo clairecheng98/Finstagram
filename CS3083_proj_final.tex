@@ -9,42 +9,10 @@
     \hfill\raisebox{\dimexpr-\height+\baselineskip}{\includegraphics[#1]{#2}}\hfill~}
 
 \usepackage[T1]{fontenc} 
-%\usepackage{txfonts}
-\usepackage{mathptmx} %Applies for Math and Times font
 \usepackage{setspace}
 \renewcommand{\baselinestretch}{1.0} 
-\usepackage{amsmath} %cannot be used with txfonts
-\usepackage{multicol} 
 \usepackage[document]{ragged2e}
 \setlength\parindent{0.5in}
-\usepackage{tikz}
-\usetikzlibrary{datavisualization}
-\usetikzlibrary{datavisualization.formats.functions}
-\usetikzlibrary{calc,positioning} 
-\usetikzlibrary{matrix}
-\usepackage{mathtools}
-\unitlength = 1mm
-\newenvironment{bmatrixcolor}[1][red]
-  {\colorlet{savethecolor}{.}\colorlet{bracecolor}{#1}%
-    \color{bracecolor}\left[\color{savethecolor}\begin{matrix}}
-  {\end{matrix}\color{bracecolor}\right]}
-\newcommand\m[1]{\begin{bmatrix}#1\end{bmatrix}}
-\newcommand\mb[1]{\begin{bmatrixcolor}[white]#1\end{bmatrixcolor}}
-\newcommand\dtm[1]{\left|\begin{bmatrixcolor}[white]#1\end{bmatrixcolor}\right|}
-\newcommand\case[1]{\begin{cases}#1\end{cases}}
-\newcommand\ctt[1]{\textcircled{\tiny #1}}
-\renewcommand{\vec}[1]{\mathbf{#1}}
-\newcommand\nbe{N_{\epsilon}}
-\usepackage{bbm}
-\newcommand{\mathbb}[1]{\mathbbm{#1}}
-\newcommand{\re}[1]{\text{Re}\left(#1\right)}
-\newcommand{\im}[1]{\text{Im}\left(#1\right)}
-\newcommand{\Arg}[1]{\text{Arg}\left(#1\right)}
-\newcommand{\qed}{\ensuremath{\blacksquare}}
-\renewcommand{\aa}[1]{\begin{align*}#1\end{align*}}
-\newcommand{\be}{\begin{equation*}}
-\newcommand{\ee}{\end{equation*}}
-\renewcommand{\d}{\displaystyle}
 
 \usepackage{color}
 
@@ -55,8 +23,6 @@
 
 \usepackage{listings}
 \lstset{language=SQL, showspaces=false, showtabs=false, breaklines=true, showstringspaces=false, breakatwhitespace=true, commentstyle=\color{pgreen}, keywordstyle=\color{pblue}, stringstyle=\color{pred}, basicstyle=\ttfamily, moredelim=[il][\textcolor{pgrey}]{$$}, moredelim=[is][\textcolor{pgrey}]{\%\%}{\%\%}, tabsize=3, frame=single}
-
-\graphicspath{ {./hw6src/} }%%%%%%%%Img Path
 
 \begin{document} 
 \setlength\parindent{0.1cm}
